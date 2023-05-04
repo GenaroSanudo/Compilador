@@ -11,22 +11,21 @@ reserved = {
     'int' : 'INT',
     'float' : 'FLOAT',
     'char' : 'CHAR',
-    'bool' : 'BOOL',
     'string' : 'STRING', #?
     'void' : 'VOID',
-    'file' : 'FILE', #?
+    'dataframe' : 'DATAFRAME', #?
     # Conditional
     'if' : 'IF',
     'else' : 'ELSE',
     #Loops
     'while' : 'WHILE',
     'for' : 'FOR',
-    'in' : 'IN',
+    'to' : 'TO',
     # Read/Write
     'read' : 'READ',
     'write' : 'WRITE',
 }
-#quite arr y mat
+
 
 
 tokens = [
@@ -112,10 +111,11 @@ def t_error(t):
 
 lexer = lex.lex()
 
-lex.input("a && b main")
+# lex.input("a && b main")
 
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    print(tok)
+# while True:
+#     tok = lexer.token()
+#     if not tok:
+#         break
+#     print(tok)
+    

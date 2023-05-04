@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens
+from cubo import semantic_cube
 
 def p_program(p):
     '''
@@ -320,9 +321,10 @@ def p_empty(p):
 
 parser = yacc.yacc()
 
-while True:
-    try:
-        s = input('')
-    except EOFError:
-        break
-    parser.parse(s)
+
+# while True:
+#     try:
+#         s = input('')
+#     except EOFError:
+#         break
+#     parser.parse(s)
