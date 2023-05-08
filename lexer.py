@@ -82,7 +82,7 @@ t_OR = r'\|\|'
 
 # Ignores spaces and tabs
 
-t_ignore = ' \t'
+t_ignore = ' \t \n'
 
 def t_ID(t):
     #primero puede ser _ ?
@@ -111,11 +111,15 @@ def t_error(t):
 
 lexer = lex.lex()
 
-# lex.input("a && b main")
+test_file = open("./test.txt", "r")
+test = test_file.read()
+test_file.close()
 
-# while True:
-#     tok = lexer.token()
-#     if not tok:
-#         break
-#     print(tok)
+lex.input(test)
+
+while True:
+    tok = lexer.token()
+    if not tok:
+        break
+    print(tok)
     

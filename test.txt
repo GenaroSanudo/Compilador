@@ -1,0 +1,17 @@
+program pato : 
+
+var int patito, patota;
+
+var float perro;
+
+var dataframe perrote;
+
+var int gatoarr[5];
+
+var float gatomat[3][4];
+
+main(){
+var float paco;
+
+read (paco);
+};
