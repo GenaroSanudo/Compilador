@@ -21,6 +21,7 @@ class Directory:
                 'vars' : {},
                 'params' : []
             }
+            print ("Added func: ", type, name)
         else:
             print("Function already exists")
 
@@ -41,9 +42,9 @@ class Directory:
             print("Function does not exist")
 
 
-    def addParameters(self, name, parameters):
+    def addParameter(self, name, parameter):
         if (self.func_directory.get(name) != None):
-            self.func_directory[name]['params'] = parameters
+            self.func_directory[name]['params'].append(parameter)
         else:
             print("Function does not exist")
 

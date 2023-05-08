@@ -38,7 +38,6 @@ def p_modules_point(p):
     global current_function
 
     func_dir.addVariables(current_function, var_list.copy())
-    # f = func_dir = 
     func_dir.print()
     var_list.clear()
     
@@ -87,7 +86,6 @@ def p_tipo_comp(p):
     '''
     global current_type
     current_type = p[1]
-    print(current_type)
 
 def p_vars(p):
     '''
@@ -165,19 +163,23 @@ def p_vars_8(p):
 
 def p_param(p):
     '''
-    param : tipo_simple param_2 punto_param ID
+    param : tipo_simple ID punto_param param_2
                 | empty
     '''
 
 def p_param_2(p):
     '''
     param_2 : COMMA param
+                | empty
     '''
 
 def p_punto_param(p):
     '''
     punto_param : empty
     '''
+    # FALTA TRADUCION DE CUBO SEMANTIGO
+    global current_type
+    func_dir.addParameter(current_function, current_type)
 
 def p_variable(p):
     '''
@@ -372,14 +374,49 @@ def p_f_2(p):
 
 def p_function(p):
     '''
-    function : FUNC function_2 SEMICOLON
+    function : FUNC function_2 SEMICOLON function_3
     '''
 
 def p_function_2(p):
     '''
-    function_2 : tipo_simple ID LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET 
-                    | VOID ID LPAR param RPAR L_C_BRACKET body R_C_BRACKET
+    function_2 : tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET func_agrega_v
+                    | VOID ID function_punto2 LPAR param RPAR L_C_BRACKET body R_C_BRACKET func_agrega_v
     '''
+
+def p_function_3(p):
+    '''
+    function_3 : function
+                    | empty
+    '''
+
+def p_function_punto1(p):
+    '''
+    function_punto1 : empty
+    '''
+    # SE AGREGA TRANSLATOR DE CUBO SEMANTICO
+    func_dir.addFunction(p[-1], str(current_type))
+    global current_function
+    current_function = p[-1]
+
+def p_function_punto2(p):
+    '''
+    function_punto2 : empty
+    '''
+    # SE AGREGA TRANSLATOR DE CUBO SEMANTICO
+    func_dir.addFunction(p[-1], 'void')
+    global current_function
+    current_function = p[-1]
+
+def p_func_agrega_v(p):
+    '''
+    func_agrega_v : empty
+    '''
+    global current_function
+    func_dir.addVariables(current_function, var_list.copy())
+    func_dir.print()
+    var_list.clear()
+
+
 
 def p_empty(p):
     '''
