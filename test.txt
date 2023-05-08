@@ -10,6 +10,20 @@ var int gatoarr[5];
 
 var float gatomat[3][4];
 
+func int pavo (int leon, char chancla){
+    var int pavote;
+
+    
+    return(8);
+};
+
+func void ino (float ballena, int foca){
+    var int inof;
+
+    
+
+};
+
 main(){
 var float paco;
 
