@@ -1,17 +1,47 @@
 import ply.yacc as yacc
 from lexer import tokens
 from cubo import semantic_cube
+import function_directory
+
+# Function directory
+current_function = None
+global_vars = {}
+var_list = {}
+last_id = None
+current_type = None
+
+func_dir = function_directory.Directory()
 
 def p_program(p):
     '''
-    program : PROGRAM ID COLON modules main
+    program : PROGRAM program_point ID COLON modules main
     '''
 
+def p_program_point(p):
+    '''
+    program_point : empty
+    '''
+    global current_function
+    current_function = p[-1]
 
 def p_modules(p):
     '''
-    modules : modules_2 modules_3
+    modules : modules_2 modules_point modules_3
     '''
+
+def p_modules_point(p):
+    '''
+    modules_point : empty
+    '''
+    global func_dir
+    global var_list
+    global current_function
+
+    func_dir.addVariables(current_function, var_list.copy())
+    # f = func_dir = 
+    func_dir.print()
+    var_list.clear()
+    
 
 def p_modules_2(p):
     '''
@@ -48,16 +78,22 @@ def p_tipo_simple(p):
                 | FLOAT
                 | CHAR
     '''
+    global current_type
+    current_type = p[1]
 
 def p_tipo_comp(p):
     '''
     tipo_comp : DATAFRAME
     '''
+    global current_type
+    current_type = p[1]
+    print(current_type)
 
 def p_vars(p):
     '''
     vars : VAR vars_2 SEMICOLON vars_8
     '''
+    
 
 def p_vars_2(p):
     '''
@@ -69,6 +105,10 @@ def p_vars_3(p):
     '''
     vars_3 : ID vars_5
     '''
+    var_id = p[1]
+    global current_type
+    global var_list
+    var_list[var_id] = {'type' : current_type, 'dim' : 0, 'size': 0}
 
 def p_vars_4(p):
     '''
@@ -84,15 +124,38 @@ def p_vars_5(p):
 
 def p_vars_6(p):
     '''
-    vars_6 : L_S_BRACKET CTE_I R_S_BRACKET vars_7
+    vars_6 : punto_id_especial L_S_BRACKET CTE_I R_S_BRACKET vars_7
                 | empty
     '''
+def p_punto_id_especial(p):
+    '''
+    punto_id_especial : empty
+    '''
+    global last_id
+    last_id = p[-1]
 
 def p_vars_7(p):
     '''
-    vars_7 : L_S_BRACKET CTE_I R_S_BRACKET
-                | empty
+    vars_7 : L_S_BRACKET CTE_I R_S_BRACKET var_mat
+                | var_array
     '''
+
+def p_var_array(p):
+    '''
+    var_array : empty
+    '''
+    global var_list
+    global last_id
+    var_list[last_id] = {'type' : current_type, 'dim' : 1, 'size': [p[-2]]}
+
+def p_var_mat(p):
+    '''
+    var_mat : empty
+    '''
+    global var_list
+    global last_id
+    var_list[last_id] = {'type' : current_type, 'dim' : 2, 'size': [p[-5],p[-2]]}
+    
 
 def p_vars_8(p):
     '''
@@ -102,14 +165,18 @@ def p_vars_8(p):
 
 def p_param(p):
     '''
-    param : tipo_simple param_2 ID
+    param : tipo_simple param_2 punto_param ID
                 | empty
     '''
 
 def p_param_2(p):
     '''
-    param_2 : COMMA tipo_simple
-                | empty
+    param_2 : COMMA param
+    '''
+
+def p_punto_param(p):
+    '''
+    punto_param : empty
     '''
 
 def p_variable(p):
@@ -310,7 +377,7 @@ def p_function(p):
 
 def p_function_2(p):
     '''
-    function_2 : tipo_simple ID LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET
+    function_2 : tipo_simple ID LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET 
                     | VOID ID LPAR param RPAR L_C_BRACKET body R_C_BRACKET
     '''
 
@@ -321,10 +388,16 @@ def p_empty(p):
 
 parser = yacc.yacc()
 
+def test_Parser():
+  try:
+      test_file = open("./test.txt", "r")
+      test = test_file.read()
+      test_file.close()
+      print ("Test parser")
+      parser.parse(test)
+      
+  except EOFError:
+      print('s')
 
-# while True:
-#     try:
-#         s = input('')
-#     except EOFError:
-#         break
-#     parser.parse(s)
+if __name__ == '__main__':
+        test_Parser()
