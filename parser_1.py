@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexer import tokens
-from cubo import semantic_cube
+from cubo import semantic_cube, traduccion
 import function_directory
 
 # Function directory
@@ -106,7 +106,8 @@ def p_vars_3(p):
     var_id = p[1]
     global current_type
     global var_list
-    var_list[var_id] = {'type' : current_type, 'dim' : 0, 'size': 0}
+    type = traduccion(current_type)
+    var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0}
 
 def p_vars_4(p):
     '''
@@ -144,7 +145,9 @@ def p_var_array(p):
     '''
     global var_list
     global last_id
-    var_list[last_id] = {'type' : current_type, 'dim' : 1, 'size': [p[-2]]}
+    global current_type
+    type = traduccion(current_type)
+    var_list[last_id] = {'type' : type, 'dim' : 1, 'size': [p[-2]]}
 
 def p_var_mat(p):
     '''
@@ -152,7 +155,9 @@ def p_var_mat(p):
     '''
     global var_list
     global last_id
-    var_list[last_id] = {'type' : current_type, 'dim' : 2, 'size': [p[-5],p[-2]]}
+    global current_type
+    type = traduccion(current_type)
+    var_list[last_id] = {'type' : type, 'dim' : 2, 'size': [p[-5],p[-2]]}
     
 
 def p_vars_8(p):
@@ -177,9 +182,9 @@ def p_punto_param(p):
     '''
     punto_param : empty
     '''
-    # FALTA TRADUCION DE CUBO SEMANTIGO
     global current_type
-    func_dir.addParameter(current_function, current_type)
+    type = traduccion(current_type)
+    func_dir.addParameter(current_function, type)
 
 def p_variable(p):
     '''
@@ -393,8 +398,9 @@ def p_function_punto1(p):
     '''
     function_punto1 : empty
     '''
-    # SE AGREGA TRANSLATOR DE CUBO SEMANTICO
-    func_dir.addFunction(p[-1], str(current_type))
+    global current_type
+    type = traduccion(current_type)
+    func_dir.addFunction(p[-1], type)
     global current_function
     current_function = p[-1]
 
@@ -402,8 +408,7 @@ def p_function_punto2(p):
     '''
     function_punto2 : empty
     '''
-    # SE AGREGA TRANSLATOR DE CUBO SEMANTICO
-    func_dir.addFunction(p[-1], 'void')
+    func_dir.addFunction(p[-1], 0)
     global current_function
     current_function = p[-1]
 
