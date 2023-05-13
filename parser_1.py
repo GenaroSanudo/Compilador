@@ -2,6 +2,7 @@ import ply.yacc as yacc
 from lexer import tokens
 from cubo import semantic_cube, traduccion
 import function_directory
+from cuadruple import Cuadruple
 
 # Function directory
 current_function = None
@@ -9,6 +10,19 @@ global_vars = {}
 var_list = {}
 last_id = None
 current_type = None
+
+# lista de cuadruplos
+cuadruplos = []
+# stack_operadores
+operator_stack = []
+# stack_tipos
+types_stack = []
+# stack_operandos
+operand_stack = []
+# stack_saltos
+jump_stack = []
+
+temporal = 0
 
 func_dir = function_directory.Directory()
 
@@ -36,9 +50,11 @@ def p_modules_point(p):
     global func_dir
     global var_list
     global current_function
+    global global_vars
 
     func_dir.addVariables(current_function, var_list.copy())
-    func_dir.print()
+    # func_dir.print()
+    global_vars = var_list.copy()
     var_list.clear()
     
 
@@ -298,74 +314,69 @@ def p_func_extra(p):
 
 def p_exp(p):
     '''
-    exp : t_exp exp_2
+    exp : t_exp add_operator_4 exp_2 
     '''
 
 def p_exp_2(p):
     '''
-    exp_2 : OR exp
+    exp_2 : OR add_operator exp 
             | empty
     '''
 
 def p_t_exp(p):
     '''
-    t_exp : g_exp t_exp_2
+    t_exp : g_exp add_operator_4 t_exp_2 
     '''
 
 def p_t_exp_2(p):
     '''
-    t_exp_2 : AND t_exp
+    t_exp_2 : AND add_operator t_exp 
                 | empty
     '''
 
 def p_g_exp(p):
     '''
-    g_exp : m_exp g_exp_2
+    g_exp : m_exp g_exp_2 add_operator_3
     '''
 
 def p_g_exp_2(p):
     '''
-    g_exp_2 : LESS_EQUAL g_exp_3
-                | LESS g_exp_3
-                | GREATER_EQUAL g_exp_3
-                | GREATER g_exp_3
-                | COMPARE g_exp_3
-                | NOT_EQUAL g_exp_3
+    g_exp_2 : LESS_EQUAL add_operator m_exp 
+                | LESS add_operator m_exp 
+                | GREATER_EQUAL add_operator m_exp 
+                | GREATER add_operator m_exp 
+                | COMPARE add_operator m_exp 
+                | NOT_EQUAL add_operator m_exp 
                 | empty
-    '''
-
-def p_g_exp_3(p):
-    '''
-    g_exp_3 : m_exp
     '''
 
 def p_m_exp(p):
     '''
-    m_exp : t m_exp_2
+    m_exp : t add_operator_2 m_exp_2
     '''
 
 def p_m_exp_2(p):
     '''
-    m_exp_2 : PLUS m_exp
-                | MINUS m_exp
+    m_exp_2 : PLUS add_operator m_exp 
+                | MINUS add_operator m_exp
                 | empty
     '''
 
 def p_t(p):
     '''
-    t : f t_2
+    t : f add_operator_1 t_2
     '''
 
 def p_t_2(p):
     '''
-    t_2 : TIMES t
-            | DIVIDE t
+    t_2 : TIMES add_operator t 
+            | DIVIDE add_operator t
             | empty
     '''
 
 def p_f(p):
     '''
-    f : LPAR m_exp RPAR
+    f : LPAR add_floor exp RPAR remove_floor
             | variable
             | llamada
             | f_2
@@ -373,10 +384,172 @@ def p_f(p):
 
 def p_f_2(p):
     '''
-    f_2 : CTE_I
-            | CTE_F
+    f_2 : CTE_I add_constant_i
+            | CTE_F add_constant_f
     '''
 
+def p_add_floor(p):
+    '''
+    add_floor : empty
+    '''
+    global operator_stack
+    operator_stack.append(70)
+
+def p_remove_floor(p):
+    '''
+    remove_floor : empty
+    '''
+    global operator_stack
+    operator_stack.pop()
+
+def p_add_operator(p):
+    '''
+    add_operator : empty 
+    '''
+    # print('add_operator')
+    global operator_stack
+    op = traduccion(p[-1])
+    operator_stack.append(op)
+    
+def p_add_operator_1(p):
+    '''
+    add_operator_1 : empty 
+    '''
+    global operator_stack
+    global operand_stack
+    global types_stack
+    if (len(operator_stack) != 0) :
+        if ((operator_stack[-1] == 15) or (operator_stack[-1] == 20)):
+            right_operand = operand_stack.pop()
+            right_type = types_stack.pop()
+
+            left_operand = operand_stack.pop()
+            left_type = types_stack.pop()
+
+            operator = operator_stack.pop()
+            
+            try: 
+                result_type = semantic_cube[left_type][right_type][operator]
+            except:
+                print("Type mismatch")
+                return
+            global temporal
+
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
+            operand_stack.append(temporal)
+            types_stack.append(result_type)
+            temporal = temporal + 1
+
+
+def p_add_operator_2(p):
+    '''
+    add_operator_2 : empty 
+    '''
+    global operator_stack
+    global operand_stack
+    global types_stack
+    if (len(operator_stack) != 0) :
+        if ((operator_stack[-1] == 5) or (operator_stack[-1] == 10)):
+            right_operand = operand_stack.pop()
+            right_type = types_stack.pop()
+
+            left_operand = operand_stack.pop()
+            left_type = types_stack.pop()
+
+            operator = operator_stack.pop()
+            
+            try: 
+                result_type = semantic_cube[left_type][right_type][operator]
+            except:
+                print("Type mismatch")
+                return
+            global temporal
+
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
+            operand_stack.append(temporal)
+            types_stack.append(result_type)
+            temporal = temporal + 1
+
+    
+def p_add_operator_3(p):
+    '''
+    add_operator_3 : empty 
+    '''
+    global operator_stack
+    global operand_stack
+    global types_stack
+    if (len(operator_stack) != 0) :
+        if ((operator_stack[-1] == 25) or (operator_stack[-1] == 30) or (operator_stack[-1] == 35) or (operator_stack[-1] == 40) or
+            (operator_stack[-1] == 45) or (operator_stack[-1] == 50)):
+            right_operand = operand_stack.pop()
+            right_type = types_stack.pop()
+
+            left_operand = operand_stack.pop()
+            left_type = types_stack.pop()
+
+            operator = operator_stack.pop()
+            
+            try: 
+                result_type = semantic_cube[left_type][right_type][operator]
+            except:
+                print("Type mismatch", left_operand, left_type, right_operand, right_type, operator)
+                return
+            global temporal
+
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
+            operand_stack.append(temporal)
+            types_stack.append(result_type)
+            temporal = temporal + 1
+
+def p_add_operator_4(p):
+    '''
+    add_operator_4 : empty 
+    '''
+    global operator_stack
+    global operand_stack
+    global types_stack
+    if (len(operator_stack) != 0) :
+        if ((operator_stack[-1] == 60) or (operator_stack[-1] == 65)):
+            right_operand = operand_stack.pop()
+            right_type = types_stack.pop()
+
+            left_operand = operand_stack.pop()
+            left_type = types_stack.pop()
+
+            operator = operator_stack.pop()
+            
+            try: 
+                result_type = semantic_cube[left_type][right_type][operator]
+            except:
+                print("Type mismatch")
+                return
+            global temporal
+
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
+            operand_stack.append(temporal)
+            types_stack.append(result_type)
+            temporal = temporal + 1
+
+def p_add_constant_i(p):
+    '''
+    add_constant_i : empty
+    '''
+    global operand_stack
+    global types_stack
+    # Adds type and operand to the stack
+    types_stack.append(1)
+    operand_stack.append(p[-1])
+
+def p_add_constant_f(p):
+    '''
+    add_constant_f : empty
+    '''
+    global operand_stack
+    global types_stack
+    # Adds type and operand to the stack
+    types_stack.append(2)
+    operand_stack.append(p[-1])
+    
 def p_function(p):
     '''
     function : FUNC function_2 SEMICOLON function_3
@@ -418,7 +591,7 @@ def p_func_agrega_v(p):
     '''
     global current_function
     func_dir.addVariables(current_function, var_list.copy())
-    func_dir.print()
+    # func_dir.print()
     var_list.clear()
 
 
@@ -443,3 +616,7 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
+        for element in cuadruplos:
+            element.print()
+        print(operator_stack, operand_stack, types_stack)
+        print(global_vars)
