@@ -86,7 +86,7 @@ t_ignore = ' \t \n'
 
 def t_ID(t):
     #primero puede ser _ ?
-    r'[a-zA-Z][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')
     return t
 
@@ -102,7 +102,7 @@ def t_CTE_I(t):
     return t
 
 def t_CTE_S(t):
-    r'[a-zA-Z]+'
+    r'\".*\"'
     return t
 
 def t_error(t):
