@@ -59,7 +59,7 @@ Rule 49    estatuto -> if_1
 Rule 50    estatuto -> for_l
 Rule 51    estatuto -> while_l
 Rule 52    estatuto -> func_extra
-Rule 53    asigna -> variable asigna_point EQUAL exp SEMICOLON
+Rule 53    asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON
 Rule 54    asigna_point -> empty
 Rule 55    llamada -> ID LPAR exp llamada_2 RPAR SEMICOLON
 Rule 56    llamada_2 -> COMMA exp llamada_2
@@ -182,7 +182,7 @@ Nonterminals, with rules where they appear
 add_constant_f       : 103
 add_constant_i       : 102
 add_floor            : 98
-add_operator         : 77 80 83 84 85 86 87 88 91 92 95 96
+add_operator         : 53 77 80 83 84 85 86 87 88 91 92 95 96
 add_operator_1       : 94
 add_operator_2       : 90
 add_operator_3       : 82
@@ -881,7 +881,7 @@ state 64
     (50) estatuto -> . for_l
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -1014,7 +1014,7 @@ state 70
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -1173,14 +1173,10 @@ state 78
 
 state 79
 
-    (53) asigna -> variable . asigna_point EQUAL exp SEMICOLON
-    (54) asigna_point -> . empty
-    (121) empty -> .
+    (53) asigna -> variable . EQUAL add_operator exp asigna_point SEMICOLON
 
-    EQUAL           reduce using rule 121 (empty -> .)
+    EQUAL           shift and go to state 98
 
-    asigna_point                   shift and go to state 98
-    empty                          shift and go to state 99
 
 state 80
 
@@ -1190,46 +1186,46 @@ state 80
     (42) variable_2 -> . empty
     (121) empty -> .
 
-    LPAR            shift and go to state 100
-    L_S_BRACKET     shift and go to state 102
+    LPAR            shift and go to state 99
+    L_S_BRACKET     shift and go to state 101
     EQUAL           reduce using rule 121 (empty -> .)
 
-    variable_2                     shift and go to state 101
-    empty                          shift and go to state 103
+    variable_2                     shift and go to state 100
+    empty                          shift and go to state 102
 
 state 81
 
     (58) read -> READ . LPAR variable read_point RPAR SEMICOLON
 
-    LPAR            shift and go to state 104
+    LPAR            shift and go to state 103
 
 
 state 82
 
     (60) write -> WRITE . LPAR write_2 write_3 RPAR SEMICOLON
 
-    LPAR            shift and go to state 105
+    LPAR            shift and go to state 104
 
 
 state 83
 
     (65) if_1 -> IF . LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON
 
-    LPAR            shift and go to state 106
+    LPAR            shift and go to state 105
 
 
 state 84
 
     (69) for_l -> FOR . LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
 
-    LPAR            shift and go to state 107
+    LPAR            shift and go to state 106
 
 
 state 85
 
     (72) while_l -> WHILE . LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
 
-    LPAR            shift and go to state 108
+    LPAR            shift and go to state 107
 
 
 state 86
@@ -1250,14 +1246,14 @@ state 87
 
     (34) param -> tipo_simple . ID punto_param param_2
 
-    ID              shift and go to state 109
+    ID              shift and go to state 108
 
 
 state 88
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param . RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET
 
-    RPAR            shift and go to state 110
+    RPAR            shift and go to state 109
 
 
 state 89
@@ -1271,14 +1267,14 @@ state 90
 
     (115) function_2 -> VOID ID function_punto2 LPAR param . RPAR L_C_BRACKET body R_C_BRACKET
 
-    RPAR            shift and go to state 111
+    RPAR            shift and go to state 110
 
 
 state 91
 
     (28) vars_7 -> L_S_BRACKET . CTE_I R_S_BRACKET var_mat
 
-    CTE_I           shift and go to state 112
+    CTE_I           shift and go to state 111
 
 
 state 92
@@ -1316,7 +1312,7 @@ state 95
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -1349,7 +1345,7 @@ state 95
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
     estatuto                       shift and go to state 95
-    body_2                         shift and go to state 113
+    body_2                         shift and go to state 112
     empty                          shift and go to state 97
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
@@ -1391,19 +1387,19 @@ state 97
 
 state 98
 
-    (53) asigna -> variable asigna_point . EQUAL exp SEMICOLON
+    (53) asigna -> variable EQUAL . add_operator exp asigna_point SEMICOLON
+    (106) add_operator -> . empty
+    (121) empty -> .
 
-    EQUAL           shift and go to state 114
+    LPAR            reduce using rule 121 (empty -> .)
+    ID              reduce using rule 121 (empty -> .)
+    CTE_I           reduce using rule 121 (empty -> .)
+    CTE_F           reduce using rule 121 (empty -> .)
 
+    add_operator                   shift and go to state 113
+    empty                          shift and go to state 114
 
 state 99
-
-    (54) asigna_point -> empty .
-
-    EQUAL           reduce using rule 54 (asigna_point -> empty .)
-
-
-state 100
 
     (55) llamada -> ID LPAR . exp llamada_2 RPAR SEMICOLON
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -1435,7 +1431,7 @@ state 100
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 101
+state 100
 
     (39) variable -> ID variable_2 . variable_point
     (40) variable_point -> . empty
@@ -1463,7 +1459,7 @@ state 101
     variable_point                 shift and go to state 128
     empty                          shift and go to state 129
 
-state 102
+state 101
 
     (41) variable_2 -> L_S_BRACKET . exp R_S_BRACKET variable_3
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -1495,7 +1491,7 @@ state 102
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 103
+state 102
 
     (42) variable_2 -> empty .
 
@@ -1519,7 +1515,7 @@ state 103
     TO              reduce using rule 42 (variable_2 -> empty .)
 
 
-state 104
+state 103
 
     (58) read -> READ LPAR . variable read_point RPAR SEMICOLON
     (39) variable -> . ID variable_2 variable_point
@@ -1528,7 +1524,7 @@ state 104
 
     variable                       shift and go to state 131
 
-state 105
+state 104
 
     (60) write -> WRITE LPAR . write_2 write_3 RPAR SEMICOLON
     (61) write_2 -> . exp
@@ -1564,7 +1560,7 @@ state 105
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 106
+state 105
 
     (65) if_1 -> IF LPAR . exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -1596,14 +1592,14 @@ state 106
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 107
+state 106
 
     (69) for_l -> FOR LPAR . ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
 
     ID              shift and go to state 137
 
 
-state 108
+state 107
 
     (72) while_l -> WHILE LPAR . exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -1635,7 +1631,7 @@ state 108
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 109
+state 108
 
     (34) param -> tipo_simple ID . punto_param param_2
     (38) punto_param -> . empty
@@ -1647,28 +1643,28 @@ state 109
     punto_param                    shift and go to state 139
     empty                          shift and go to state 140
 
-state 110
+state 109
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR . L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET
 
     L_C_BRACKET     shift and go to state 141
 
 
-state 111
+state 110
 
     (115) function_2 -> VOID ID function_punto2 LPAR param RPAR . L_C_BRACKET body R_C_BRACKET
 
     L_C_BRACKET     shift and go to state 142
 
 
-state 112
+state 111
 
     (28) vars_7 -> L_S_BRACKET CTE_I . R_S_BRACKET var_mat
 
     R_S_BRACKET     shift and go to state 143
 
 
-state 113
+state 112
 
     (11) body_2 -> estatuto body_2 .
 
@@ -1676,9 +1672,9 @@ state 113
     RETURN          reduce using rule 11 (body_2 -> estatuto body_2 .)
 
 
-state 114
+state 113
 
-    (53) asigna -> variable asigna_point EQUAL . exp SEMICOLON
+    (53) asigna -> variable EQUAL add_operator . exp asigna_point SEMICOLON
     (76) exp -> . t_exp add_operator_4 exp_2
     (79) t_exp -> . g_exp add_operator_4 t_exp_2
     (82) g_exp -> . m_exp g_exp_2 add_operator_3
@@ -1708,6 +1704,16 @@ state 114
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
+state 114
+
+    (106) add_operator -> empty .
+
+    LPAR            reduce using rule 106 (add_operator -> empty .)
+    ID              reduce using rule 106 (add_operator -> empty .)
+    CTE_I           reduce using rule 106 (add_operator -> empty .)
+    CTE_F           reduce using rule 106 (add_operator -> empty .)
+
+
 state 115
 
     (39) variable -> ID . variable_2 variable_point
@@ -1716,8 +1722,8 @@ state 115
     (42) variable_2 -> . empty
     (121) empty -> .
 
-    LPAR            shift and go to state 100
-    L_S_BRACKET     shift and go to state 102
+    LPAR            shift and go to state 99
+    L_S_BRACKET     shift and go to state 101
     TIMES           reduce using rule 121 (empty -> .)
     DIVIDE          reduce using rule 121 (empty -> .)
     PLUS            reduce using rule 121 (empty -> .)
@@ -1736,8 +1742,8 @@ state 115
     SEMICOLON       reduce using rule 121 (empty -> .)
     TO              reduce using rule 121 (empty -> .)
 
-    variable_2                     shift and go to state 101
-    empty                          shift and go to state 103
+    variable_2                     shift and go to state 100
+    empty                          shift and go to state 102
 
 state 116
 
@@ -2076,11 +2082,11 @@ state 132
     (42) variable_2 -> . empty
     (121) empty -> .
 
-    L_S_BRACKET     shift and go to state 102
+    L_S_BRACKET     shift and go to state 101
     RPAR            reduce using rule 121 (empty -> .)
 
-    variable_2                     shift and go to state 101
-    empty                          shift and go to state 103
+    variable_2                     shift and go to state 100
+    empty                          shift and go to state 102
 
 state 133
 
@@ -2188,10 +2194,14 @@ state 143
 
 state 144
 
-    (53) asigna -> variable asigna_point EQUAL exp . SEMICOLON
+    (53) asigna -> variable EQUAL add_operator exp . asigna_point SEMICOLON
+    (54) asigna_point -> . empty
+    (121) empty -> .
 
-    SEMICOLON       shift and go to state 185
+    SEMICOLON       reduce using rule 121 (empty -> .)
 
+    asigna_point                   shift and go to state 185
+    empty                          shift and go to state 186
 
 state 145
 
@@ -2215,7 +2225,7 @@ state 145
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 186
+    exp                            shift and go to state 187
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -2239,7 +2249,7 @@ state 147
 
     (55) llamada -> ID LPAR exp llamada_2 . RPAR SEMICOLON
 
-    RPAR            shift and go to state 187
+    RPAR            shift and go to state 188
 
 
 state 148
@@ -2264,7 +2274,7 @@ state 148
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 188
+    exp                            shift and go to state 189
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -2288,15 +2298,15 @@ state 150
     (78) exp_2 -> . empty
     (121) empty -> .
 
-    OR              shift and go to state 190
+    OR              shift and go to state 191
     COMMA           reduce using rule 121 (empty -> .)
     RPAR            reduce using rule 121 (empty -> .)
     R_S_BRACKET     reduce using rule 121 (empty -> .)
     SEMICOLON       reduce using rule 121 (empty -> .)
     TO              reduce using rule 121 (empty -> .)
 
-    exp_2                          shift and go to state 189
-    empty                          shift and go to state 191
+    exp_2                          shift and go to state 190
+    empty                          shift and go to state 192
 
 state 151
 
@@ -2318,7 +2328,7 @@ state 152
     (81) t_exp_2 -> . empty
     (121) empty -> .
 
-    AND             shift and go to state 193
+    AND             shift and go to state 194
     OR              reduce using rule 121 (empty -> .)
     COMMA           reduce using rule 121 (empty -> .)
     RPAR            reduce using rule 121 (empty -> .)
@@ -2326,8 +2336,8 @@ state 152
     SEMICOLON       reduce using rule 121 (empty -> .)
     TO              reduce using rule 121 (empty -> .)
 
-    t_exp_2                        shift and go to state 192
-    empty                          shift and go to state 194
+    t_exp_2                        shift and go to state 193
+    empty                          shift and go to state 195
 
 state 153
 
@@ -2343,8 +2353,8 @@ state 153
     SEMICOLON       reduce using rule 121 (empty -> .)
     TO              reduce using rule 121 (empty -> .)
 
-    add_operator_3                 shift and go to state 195
-    empty                          shift and go to state 196
+    add_operator_3                 shift and go to state 196
+    empty                          shift and go to state 197
 
 state 154
 
@@ -2357,8 +2367,8 @@ state 154
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 197
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 198
+    empty                          shift and go to state 114
 
 state 155
 
@@ -2372,7 +2382,7 @@ state 155
     CTE_F           reduce using rule 121 (empty -> .)
 
     add_operator                   shift and go to state 199
-    empty                          shift and go to state 198
+    empty                          shift and go to state 114
 
 state 156
 
@@ -2386,7 +2396,7 @@ state 156
     CTE_F           reduce using rule 121 (empty -> .)
 
     add_operator                   shift and go to state 200
-    empty                          shift and go to state 198
+    empty                          shift and go to state 114
 
 state 157
 
@@ -2400,7 +2410,7 @@ state 157
     CTE_F           reduce using rule 121 (empty -> .)
 
     add_operator                   shift and go to state 201
-    empty                          shift and go to state 198
+    empty                          shift and go to state 114
 
 state 158
 
@@ -2414,7 +2424,7 @@ state 158
     CTE_F           reduce using rule 121 (empty -> .)
 
     add_operator                   shift and go to state 202
-    empty                          shift and go to state 198
+    empty                          shift and go to state 114
 
 state 159
 
@@ -2428,7 +2438,7 @@ state 159
     CTE_F           reduce using rule 121 (empty -> .)
 
     add_operator                   shift and go to state 203
-    empty                          shift and go to state 198
+    empty                          shift and go to state 114
 
 state 160
 
@@ -2813,33 +2823,33 @@ state 184
 
 state 185
 
-    (53) asigna -> variable asigna_point EQUAL exp SEMICOLON .
+    (53) asigna -> variable EQUAL add_operator exp asigna_point . SEMICOLON
 
-    ID              reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    READ            reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    WRITE           reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    IF              reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    FOR             reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    WHILE           reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    R_C_BRACKET     reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
-    RETURN          reduce using rule 53 (asigna -> variable asigna_point EQUAL exp SEMICOLON .)
+    SEMICOLON       shift and go to state 224
 
 
 state 186
 
-    (98) f -> LPAR add_floor exp . RPAR remove_floor
+    (54) asigna_point -> empty .
 
-    RPAR            shift and go to state 224
+    SEMICOLON       reduce using rule 54 (asigna_point -> empty .)
 
 
 state 187
 
-    (55) llamada -> ID LPAR exp llamada_2 RPAR . SEMICOLON
+    (98) f -> LPAR add_floor exp . RPAR remove_floor
 
-    SEMICOLON       shift and go to state 225
+    RPAR            shift and go to state 225
 
 
 state 188
+
+    (55) llamada -> ID LPAR exp llamada_2 RPAR . SEMICOLON
+
+    SEMICOLON       shift and go to state 226
+
+
+state 189
 
     (56) llamada_2 -> COMMA exp . llamada_2
     (56) llamada_2 -> . COMMA exp llamada_2
@@ -2849,10 +2859,10 @@ state 188
     COMMA           shift and go to state 148
     RPAR            reduce using rule 121 (empty -> .)
 
-    llamada_2                      shift and go to state 226
+    llamada_2                      shift and go to state 227
     empty                          shift and go to state 149
 
-state 189
+state 190
 
     (76) exp -> t_exp add_operator_4 exp_2 .
 
@@ -2863,7 +2873,7 @@ state 189
     TO              reduce using rule 76 (exp -> t_exp add_operator_4 exp_2 .)
 
 
-state 190
+state 191
 
     (77) exp_2 -> OR . add_operator exp
     (106) add_operator -> . empty
@@ -2874,10 +2884,10 @@ state 190
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 227
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 228
+    empty                          shift and go to state 114
 
-state 191
+state 192
 
     (78) exp_2 -> empty .
 
@@ -2888,7 +2898,7 @@ state 191
     TO              reduce using rule 78 (exp_2 -> empty .)
 
 
-state 192
+state 193
 
     (79) t_exp -> g_exp add_operator_4 t_exp_2 .
 
@@ -2900,7 +2910,7 @@ state 192
     TO              reduce using rule 79 (t_exp -> g_exp add_operator_4 t_exp_2 .)
 
 
-state 193
+state 194
 
     (80) t_exp_2 -> AND . add_operator t_exp
     (106) add_operator -> . empty
@@ -2911,10 +2921,10 @@ state 193
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 228
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 229
+    empty                          shift and go to state 114
 
-state 194
+state 195
 
     (81) t_exp_2 -> empty .
 
@@ -2926,7 +2936,7 @@ state 194
     TO              reduce using rule 81 (t_exp_2 -> empty .)
 
 
-state 195
+state 196
 
     (82) g_exp -> m_exp g_exp_2 add_operator_3 .
 
@@ -2939,7 +2949,7 @@ state 195
     TO              reduce using rule 82 (g_exp -> m_exp g_exp_2 add_operator_3 .)
 
 
-state 196
+state 197
 
     (109) add_operator_3 -> empty .
 
@@ -2952,7 +2962,7 @@ state 196
     TO              reduce using rule 109 (add_operator_3 -> empty .)
 
 
-state 197
+state 198
 
     (83) g_exp_2 -> LESS_EQUAL add_operator . m_exp
     (90) m_exp -> . t add_operator_2 m_exp_2
@@ -2971,22 +2981,12 @@ state 197
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 229
+    m_exp                          shift and go to state 230
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
-
-state 198
-
-    (106) add_operator -> empty .
-
-    LPAR            reduce using rule 106 (add_operator -> empty .)
-    ID              reduce using rule 106 (add_operator -> empty .)
-    CTE_I           reduce using rule 106 (add_operator -> empty .)
-    CTE_F           reduce using rule 106 (add_operator -> empty .)
-
 
 state 199
 
@@ -3007,7 +3007,7 @@ state 199
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 230
+    m_exp                          shift and go to state 231
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
@@ -3033,7 +3033,7 @@ state 200
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 231
+    m_exp                          shift and go to state 232
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
@@ -3059,7 +3059,7 @@ state 201
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 232
+    m_exp                          shift and go to state 233
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
@@ -3085,7 +3085,7 @@ state 202
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 233
+    m_exp                          shift and go to state 234
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
@@ -3111,7 +3111,7 @@ state 203
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    m_exp                          shift and go to state 234
+    m_exp                          shift and go to state 235
     t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
@@ -3148,8 +3148,8 @@ state 205
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 235
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 236
+    empty                          shift and go to state 114
 
 state 206
 
@@ -3162,8 +3162,8 @@ state 206
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 236
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 237
+    empty                          shift and go to state 114
 
 state 207
 
@@ -3216,8 +3216,8 @@ state 209
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 237
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 238
+    empty                          shift and go to state 114
 
 state 210
 
@@ -3230,8 +3230,8 @@ state 210
     CTE_I           reduce using rule 121 (empty -> .)
     CTE_F           reduce using rule 121 (empty -> .)
 
-    add_operator                   shift and go to state 238
-    empty                          shift and go to state 198
+    add_operator                   shift and go to state 239
+    empty                          shift and go to state 114
 
 state 211
 
@@ -3276,7 +3276,7 @@ state 212
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 239
+    exp                            shift and go to state 240
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -3338,14 +3338,14 @@ state 215
 
     (58) read -> READ LPAR variable read_point RPAR . SEMICOLON
 
-    SEMICOLON       shift and go to state 240
+    SEMICOLON       shift and go to state 241
 
 
 state 216
 
     (60) write -> WRITE LPAR write_2 write_3 RPAR . SEMICOLON
 
-    SEMICOLON       shift and go to state 241
+    SEMICOLON       shift and go to state 242
 
 
 state 217
@@ -3358,7 +3358,7 @@ state 217
     COMMA           shift and go to state 173
     RPAR            reduce using rule 121 (empty -> .)
 
-    write_3                        shift and go to state 242
+    write_3                        shift and go to state 243
     empty                          shift and go to state 174
 
 state 218
@@ -3372,7 +3372,7 @@ state 218
     (50) estatuto -> . for_l
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -3404,7 +3404,7 @@ state 218
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 243
+    estatuto                       shift and go to state 244
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -3438,7 +3438,7 @@ state 219
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 244
+    exp                            shift and go to state 245
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -3459,7 +3459,7 @@ state 220
     (50) estatuto -> . for_l
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -3491,7 +3491,7 @@ state 220
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 245
+    estatuto                       shift and go to state 246
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -3514,7 +3514,7 @@ state 222
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN . LPAR exp RPAR SEMICOLON R_C_BRACKET
 
-    LPAR            shift and go to state 246
+    LPAR            shift and go to state 247
 
 
 state 223
@@ -3525,6 +3525,20 @@ state 223
 
 
 state 224
+
+    (53) asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .
+
+    ID              reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    READ            reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    WRITE           reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    IF              reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    FOR             reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    WHILE           reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    R_C_BRACKET     reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+    RETURN          reduce using rule 53 (asigna -> variable EQUAL add_operator exp asigna_point SEMICOLON .)
+
+
+state 225
 
     (98) f -> LPAR add_floor exp RPAR . remove_floor
     (105) remove_floor -> . empty
@@ -3548,10 +3562,10 @@ state 224
     SEMICOLON       reduce using rule 121 (empty -> .)
     TO              reduce using rule 121 (empty -> .)
 
-    remove_floor                   shift and go to state 247
-    empty                          shift and go to state 248
+    remove_floor                   shift and go to state 248
+    empty                          shift and go to state 249
 
-state 225
+state 226
 
     (55) llamada -> ID LPAR exp llamada_2 RPAR SEMICOLON .
 
@@ -3582,14 +3596,14 @@ state 225
     TO              reduce using rule 55 (llamada -> ID LPAR exp llamada_2 RPAR SEMICOLON .)
 
 
-state 226
+state 227
 
     (56) llamada_2 -> COMMA exp llamada_2 .
 
     RPAR            reduce using rule 56 (llamada_2 -> COMMA exp llamada_2 .)
 
 
-state 227
+state 228
 
     (77) exp_2 -> OR add_operator . exp
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -3611,7 +3625,7 @@ state 227
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 249
+    exp                            shift and go to state 250
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -3621,7 +3635,7 @@ state 227
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 228
+state 229
 
     (80) t_exp_2 -> AND add_operator . t_exp
     (79) t_exp -> . g_exp add_operator_4 t_exp_2
@@ -3642,7 +3656,7 @@ state 228
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    t_exp                          shift and go to state 250
+    t_exp                          shift and go to state 251
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
     t                              shift and go to state 121
@@ -3651,7 +3665,7 @@ state 228
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 229
+state 230
 
     (83) g_exp_2 -> LESS_EQUAL add_operator m_exp .
 
@@ -3664,7 +3678,7 @@ state 229
     TO              reduce using rule 83 (g_exp_2 -> LESS_EQUAL add_operator m_exp .)
 
 
-state 230
+state 231
 
     (84) g_exp_2 -> LESS add_operator m_exp .
 
@@ -3677,7 +3691,7 @@ state 230
     TO              reduce using rule 84 (g_exp_2 -> LESS add_operator m_exp .)
 
 
-state 231
+state 232
 
     (85) g_exp_2 -> GREATER_EQUAL add_operator m_exp .
 
@@ -3690,7 +3704,7 @@ state 231
     TO              reduce using rule 85 (g_exp_2 -> GREATER_EQUAL add_operator m_exp .)
 
 
-state 232
+state 233
 
     (86) g_exp_2 -> GREATER add_operator m_exp .
 
@@ -3703,7 +3717,7 @@ state 232
     TO              reduce using rule 86 (g_exp_2 -> GREATER add_operator m_exp .)
 
 
-state 233
+state 234
 
     (87) g_exp_2 -> COMPARE add_operator m_exp .
 
@@ -3716,7 +3730,7 @@ state 233
     TO              reduce using rule 87 (g_exp_2 -> COMPARE add_operator m_exp .)
 
 
-state 234
+state 235
 
     (88) g_exp_2 -> NOT_EQUAL add_operator m_exp .
 
@@ -3729,35 +3743,9 @@ state 234
     TO              reduce using rule 88 (g_exp_2 -> NOT_EQUAL add_operator m_exp .)
 
 
-state 235
-
-    (91) m_exp_2 -> PLUS add_operator . m_exp
-    (90) m_exp -> . t add_operator_2 m_exp_2
-    (94) t -> . f add_operator_1 t_2
-    (98) f -> . LPAR add_floor exp RPAR remove_floor
-    (99) f -> . variable
-    (100) f -> . llamada
-    (101) f -> . f_2
-    (39) variable -> . ID variable_2 variable_point
-    (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
-    (102) f_2 -> . CTE_I add_constant_i
-    (103) f_2 -> . CTE_F add_constant_f
-
-    LPAR            shift and go to state 116
-    ID              shift and go to state 115
-    CTE_I           shift and go to state 126
-    CTE_F           shift and go to state 127
-
-    m_exp                          shift and go to state 251
-    t                              shift and go to state 121
-    f                              shift and go to state 122
-    variable                       shift and go to state 123
-    llamada                        shift and go to state 124
-    f_2                            shift and go to state 125
-
 state 236
 
-    (92) m_exp_2 -> MINUS add_operator . m_exp
+    (91) m_exp_2 -> PLUS add_operator . m_exp
     (90) m_exp -> . t add_operator_2 m_exp_2
     (94) t -> . f add_operator_1 t_2
     (98) f -> . LPAR add_floor exp RPAR remove_floor
@@ -3783,7 +3771,8 @@ state 236
 
 state 237
 
-    (95) t_2 -> TIMES add_operator . t
+    (92) m_exp_2 -> MINUS add_operator . m_exp
+    (90) m_exp -> . t add_operator_2 m_exp_2
     (94) t -> . f add_operator_1 t_2
     (98) f -> . LPAR add_floor exp RPAR remove_floor
     (99) f -> . variable
@@ -3799,7 +3788,8 @@ state 237
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    t                              shift and go to state 253
+    m_exp                          shift and go to state 253
+    t                              shift and go to state 121
     f                              shift and go to state 122
     variable                       shift and go to state 123
     llamada                        shift and go to state 124
@@ -3807,7 +3797,7 @@ state 237
 
 state 238
 
-    (96) t_2 -> DIVIDE add_operator . t
+    (95) t_2 -> TIMES add_operator . t
     (94) t -> . f add_operator_1 t_2
     (98) f -> . LPAR add_floor exp RPAR remove_floor
     (99) f -> . variable
@@ -3831,12 +3821,36 @@ state 238
 
 state 239
 
-    (43) variable_3 -> L_S_BRACKET exp . R_S_BRACKET
+    (96) t_2 -> DIVIDE add_operator . t
+    (94) t -> . f add_operator_1 t_2
+    (98) f -> . LPAR add_floor exp RPAR remove_floor
+    (99) f -> . variable
+    (100) f -> . llamada
+    (101) f -> . f_2
+    (39) variable -> . ID variable_2 variable_point
+    (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
+    (102) f_2 -> . CTE_I add_constant_i
+    (103) f_2 -> . CTE_F add_constant_f
 
-    R_S_BRACKET     shift and go to state 255
+    LPAR            shift and go to state 116
+    ID              shift and go to state 115
+    CTE_I           shift and go to state 126
+    CTE_F           shift and go to state 127
 
+    t                              shift and go to state 255
+    f                              shift and go to state 122
+    variable                       shift and go to state 123
+    llamada                        shift and go to state 124
+    f_2                            shift and go to state 125
 
 state 240
+
+    (43) variable_3 -> L_S_BRACKET exp . R_S_BRACKET
+
+    R_S_BRACKET     shift and go to state 256
+
+
+state 241
 
     (58) read -> READ LPAR variable read_point RPAR SEMICOLON .
 
@@ -3850,7 +3864,7 @@ state 240
     RETURN          reduce using rule 58 (read -> READ LPAR variable read_point RPAR SEMICOLON .)
 
 
-state 241
+state 242
 
     (60) write -> WRITE LPAR write_2 write_3 RPAR SEMICOLON .
 
@@ -3864,14 +3878,14 @@ state 241
     RETURN          reduce using rule 60 (write -> WRITE LPAR write_2 write_3 RPAR SEMICOLON .)
 
 
-state 242
+state 243
 
     (63) write_3 -> COMMA write_2 write_3 .
 
     RPAR            reduce using rule 63 (write_3 -> COMMA write_2 write_3 .)
 
 
-state 243
+state 244
 
     (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto . if_2 R_C_BRACKET if_3 SEMICOLON
     (66) if_2 -> . estatuto if_2
@@ -3885,7 +3899,7 @@ state 243
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -3916,9 +3930,9 @@ state 243
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 256
-    if_2                           shift and go to state 257
-    empty                          shift and go to state 258
+    estatuto                       shift and go to state 257
+    if_2                           shift and go to state 258
+    empty                          shift and go to state 259
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -3929,14 +3943,14 @@ state 243
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 244
+state 245
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp . TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
 
-    TO              shift and go to state 259
+    TO              shift and go to state 260
 
 
-state 245
+state 246
 
     (72) while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto . while_l_2 R_C_BRACKET SEMICOLON
     (73) while_l_2 -> . estatuto while_l_2
@@ -3950,7 +3964,7 @@ state 245
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -3981,9 +3995,9 @@ state 245
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 260
-    while_l_2                      shift and go to state 261
-    empty                          shift and go to state 262
+    estatuto                       shift and go to state 261
+    while_l_2                      shift and go to state 262
+    empty                          shift and go to state 263
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -3994,7 +4008,7 @@ state 245
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 246
+state 247
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR . exp RPAR SEMICOLON R_C_BRACKET
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -4016,7 +4030,7 @@ state 246
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 263
+    exp                            shift and go to state 264
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -4026,7 +4040,7 @@ state 246
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 247
+state 248
 
     (98) f -> LPAR add_floor exp RPAR remove_floor .
 
@@ -4049,7 +4063,7 @@ state 247
     TO              reduce using rule 98 (f -> LPAR add_floor exp RPAR remove_floor .)
 
 
-state 248
+state 249
 
     (105) remove_floor -> empty .
 
@@ -4072,7 +4086,7 @@ state 248
     TO              reduce using rule 105 (remove_floor -> empty .)
 
 
-state 249
+state 250
 
     (77) exp_2 -> OR add_operator exp .
 
@@ -4083,7 +4097,7 @@ state 249
     TO              reduce using rule 77 (exp_2 -> OR add_operator exp .)
 
 
-state 250
+state 251
 
     (80) t_exp_2 -> AND add_operator t_exp .
 
@@ -4095,7 +4109,7 @@ state 250
     TO              reduce using rule 80 (t_exp_2 -> AND add_operator t_exp .)
 
 
-state 251
+state 252
 
     (91) m_exp_2 -> PLUS add_operator m_exp .
 
@@ -4114,7 +4128,7 @@ state 251
     TO              reduce using rule 91 (m_exp_2 -> PLUS add_operator m_exp .)
 
 
-state 252
+state 253
 
     (92) m_exp_2 -> MINUS add_operator m_exp .
 
@@ -4133,7 +4147,7 @@ state 252
     TO              reduce using rule 92 (m_exp_2 -> MINUS add_operator m_exp .)
 
 
-state 253
+state 254
 
     (95) t_2 -> TIMES add_operator t .
 
@@ -4154,7 +4168,7 @@ state 253
     TO              reduce using rule 95 (t_2 -> TIMES add_operator t .)
 
 
-state 254
+state 255
 
     (96) t_2 -> DIVIDE add_operator t .
 
@@ -4175,7 +4189,7 @@ state 254
     TO              reduce using rule 96 (t_2 -> DIVIDE add_operator t .)
 
 
-state 255
+state 256
 
     (43) variable_3 -> L_S_BRACKET exp R_S_BRACKET .
 
@@ -4199,7 +4213,7 @@ state 255
     TO              reduce using rule 43 (variable_3 -> L_S_BRACKET exp R_S_BRACKET .)
 
 
-state 256
+state 257
 
     (66) if_2 -> estatuto . if_2
     (66) if_2 -> . estatuto if_2
@@ -4213,7 +4227,7 @@ state 256
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4244,9 +4258,9 @@ state 256
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 256
-    if_2                           shift and go to state 264
-    empty                          shift and go to state 258
+    estatuto                       shift and go to state 257
+    if_2                           shift and go to state 265
+    empty                          shift and go to state 259
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -4257,14 +4271,14 @@ state 256
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 257
+state 258
 
     (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 . R_C_BRACKET if_3 SEMICOLON
 
-    R_C_BRACKET     shift and go to state 265
+    R_C_BRACKET     shift and go to state 266
 
 
-state 258
+state 259
 
     (67) if_2 -> empty .
     (75) func_extra -> empty .
@@ -4281,7 +4295,7 @@ state 258
   ! R_C_BRACKET     [ reduce using rule 75 (func_extra -> empty .) ]
 
 
-state 259
+state 260
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO . exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
     (76) exp -> . t_exp add_operator_4 exp_2
@@ -4303,7 +4317,7 @@ state 259
     CTE_I           shift and go to state 126
     CTE_F           shift and go to state 127
 
-    exp                            shift and go to state 266
+    exp                            shift and go to state 267
     t_exp                          shift and go to state 118
     g_exp                          shift and go to state 119
     m_exp                          shift and go to state 120
@@ -4313,7 +4327,7 @@ state 259
     llamada                        shift and go to state 124
     f_2                            shift and go to state 125
 
-state 260
+state 261
 
     (73) while_l_2 -> estatuto . while_l_2
     (73) while_l_2 -> . estatuto while_l_2
@@ -4327,7 +4341,7 @@ state 260
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4358,9 +4372,9 @@ state 260
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 260
-    while_l_2                      shift and go to state 267
-    empty                          shift and go to state 262
+    estatuto                       shift and go to state 261
+    while_l_2                      shift and go to state 268
+    empty                          shift and go to state 263
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -4371,14 +4385,14 @@ state 260
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 261
+state 262
 
     (72) while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 . R_C_BRACKET SEMICOLON
 
-    R_C_BRACKET     shift and go to state 268
+    R_C_BRACKET     shift and go to state 269
 
 
-state 262
+state 263
 
     (74) while_l_2 -> empty .
     (75) func_extra -> empty .
@@ -4395,79 +4409,79 @@ state 262
   ! R_C_BRACKET     [ reduce using rule 75 (func_extra -> empty .) ]
 
 
-state 263
+state 264
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp . RPAR SEMICOLON R_C_BRACKET
 
-    RPAR            shift and go to state 269
+    RPAR            shift and go to state 270
 
 
-state 264
+state 265
 
     (66) if_2 -> estatuto if_2 .
 
     R_C_BRACKET     reduce using rule 66 (if_2 -> estatuto if_2 .)
 
 
-state 265
+state 266
 
     (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET . if_3 SEMICOLON
     (68) if_3 -> . ELSE L_C_BRACKET estatuto if_2 R_C_BRACKET
 
-    ELSE            shift and go to state 271
+    ELSE            shift and go to state 272
 
-    if_3                           shift and go to state 270
+    if_3                           shift and go to state 271
 
-state 266
+state 267
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp . RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
 
-    RPAR            shift and go to state 272
+    RPAR            shift and go to state 273
 
 
-state 267
+state 268
 
     (73) while_l_2 -> estatuto while_l_2 .
 
     R_C_BRACKET     reduce using rule 73 (while_l_2 -> estatuto while_l_2 .)
 
 
-state 268
-
-    (72) while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET . SEMICOLON
-
-    SEMICOLON       shift and go to state 273
-
-
 state 269
 
-    (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR . SEMICOLON R_C_BRACKET
+    (72) while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET . SEMICOLON
 
     SEMICOLON       shift and go to state 274
 
 
 state 270
 
-    (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 . SEMICOLON
+    (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR . SEMICOLON R_C_BRACKET
 
     SEMICOLON       shift and go to state 275
 
 
 state 271
 
-    (68) if_3 -> ELSE . L_C_BRACKET estatuto if_2 R_C_BRACKET
+    (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 . SEMICOLON
 
-    L_C_BRACKET     shift and go to state 276
+    SEMICOLON       shift and go to state 276
 
 
 state 272
 
-    (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR . L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
+    (68) if_3 -> ELSE . L_C_BRACKET estatuto if_2 R_C_BRACKET
 
     L_C_BRACKET     shift and go to state 277
 
 
 state 273
+
+    (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR . L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
+
+    L_C_BRACKET     shift and go to state 278
+
+
+state 274
 
     (72) while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON .
 
@@ -4481,14 +4495,14 @@ state 273
     RETURN          reduce using rule 72 (while_l -> WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON .)
 
 
-state 274
+state 275
 
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON . R_C_BRACKET
 
-    R_C_BRACKET     shift and go to state 278
+    R_C_BRACKET     shift and go to state 279
 
 
-state 275
+state 276
 
     (65) if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON .
 
@@ -4502,7 +4516,7 @@ state 275
     RETURN          reduce using rule 65 (if_1 -> IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON .)
 
 
-state 276
+state 277
 
     (68) if_3 -> ELSE L_C_BRACKET . estatuto if_2 R_C_BRACKET
     (45) estatuto -> . asigna
@@ -4513,62 +4527,7 @@ state 276
     (50) estatuto -> . for_l
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
-    (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
-    (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
-    (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
-    (65) if_1 -> . IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON
-    (69) for_l -> . FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
-    (72) while_l -> . WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
-    (75) func_extra -> . empty
-    (39) variable -> . ID variable_2 variable_point
-    (121) empty -> .
-
-  ! shift/reduce conflict for ID resolved as shift
-  ! shift/reduce conflict for READ resolved as shift
-  ! shift/reduce conflict for WRITE resolved as shift
-  ! shift/reduce conflict for IF resolved as shift
-  ! shift/reduce conflict for FOR resolved as shift
-  ! shift/reduce conflict for WHILE resolved as shift
-    ID              shift and go to state 80
-    READ            shift and go to state 81
-    WRITE           shift and go to state 82
-    IF              shift and go to state 83
-    FOR             shift and go to state 84
-    WHILE           shift and go to state 85
-    R_C_BRACKET     reduce using rule 121 (empty -> .)
-
-  ! ID              [ reduce using rule 121 (empty -> .) ]
-  ! READ            [ reduce using rule 121 (empty -> .) ]
-  ! WRITE           [ reduce using rule 121 (empty -> .) ]
-  ! IF              [ reduce using rule 121 (empty -> .) ]
-  ! FOR             [ reduce using rule 121 (empty -> .) ]
-  ! WHILE           [ reduce using rule 121 (empty -> .) ]
-
-    estatuto                       shift and go to state 279
-    asigna                         shift and go to state 71
-    llamada                        shift and go to state 72
-    read                           shift and go to state 73
-    write                          shift and go to state 74
-    if_1                           shift and go to state 75
-    for_l                          shift and go to state 76
-    while_l                        shift and go to state 77
-    func_extra                     shift and go to state 78
-    variable                       shift and go to state 79
-    empty                          shift and go to state 86
-
-state 277
-
-    (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET . estatuto for_l_2 R_C_BRACKET SEMICOLON
-    (45) estatuto -> . asigna
-    (46) estatuto -> . llamada
-    (47) estatuto -> . read
-    (48) estatuto -> . write
-    (49) estatuto -> . if_1
-    (50) estatuto -> . for_l
-    (51) estatuto -> . while_l
-    (52) estatuto -> . func_extra
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4614,12 +4573,67 @@ state 277
 
 state 278
 
+    (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET . estatuto for_l_2 R_C_BRACKET SEMICOLON
+    (45) estatuto -> . asigna
+    (46) estatuto -> . llamada
+    (47) estatuto -> . read
+    (48) estatuto -> . write
+    (49) estatuto -> . if_1
+    (50) estatuto -> . for_l
+    (51) estatuto -> . while_l
+    (52) estatuto -> . func_extra
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
+    (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
+    (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
+    (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
+    (65) if_1 -> . IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON
+    (69) for_l -> . FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
+    (72) while_l -> . WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
+    (75) func_extra -> . empty
+    (39) variable -> . ID variable_2 variable_point
+    (121) empty -> .
+
+  ! shift/reduce conflict for ID resolved as shift
+  ! shift/reduce conflict for READ resolved as shift
+  ! shift/reduce conflict for WRITE resolved as shift
+  ! shift/reduce conflict for IF resolved as shift
+  ! shift/reduce conflict for FOR resolved as shift
+  ! shift/reduce conflict for WHILE resolved as shift
+    ID              shift and go to state 80
+    READ            shift and go to state 81
+    WRITE           shift and go to state 82
+    IF              shift and go to state 83
+    FOR             shift and go to state 84
+    WHILE           shift and go to state 85
+    R_C_BRACKET     reduce using rule 121 (empty -> .)
+
+  ! ID              [ reduce using rule 121 (empty -> .) ]
+  ! READ            [ reduce using rule 121 (empty -> .) ]
+  ! WRITE           [ reduce using rule 121 (empty -> .) ]
+  ! IF              [ reduce using rule 121 (empty -> .) ]
+  ! FOR             [ reduce using rule 121 (empty -> .) ]
+  ! WHILE           [ reduce using rule 121 (empty -> .) ]
+
+    estatuto                       shift and go to state 281
+    asigna                         shift and go to state 71
+    llamada                        shift and go to state 72
+    read                           shift and go to state 73
+    write                          shift and go to state 74
+    if_1                           shift and go to state 75
+    for_l                          shift and go to state 76
+    while_l                        shift and go to state 77
+    func_extra                     shift and go to state 78
+    variable                       shift and go to state 79
+    empty                          shift and go to state 86
+
+state 279
+
     (114) function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET .
 
     SEMICOLON       reduce using rule 114 (function_2 -> tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET .)
 
 
-state 279
+state 280
 
     (68) if_3 -> ELSE L_C_BRACKET estatuto . if_2 R_C_BRACKET
     (66) if_2 -> . estatuto if_2
@@ -4633,7 +4647,7 @@ state 279
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4664,9 +4678,9 @@ state 279
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 256
-    if_2                           shift and go to state 281
-    empty                          shift and go to state 258
+    estatuto                       shift and go to state 257
+    if_2                           shift and go to state 282
+    empty                          shift and go to state 259
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -4677,7 +4691,7 @@ state 279
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 280
+state 281
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto . for_l_2 R_C_BRACKET SEMICOLON
     (70) for_l_2 -> . estatuto for_l_2
@@ -4691,7 +4705,7 @@ state 280
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4722,9 +4736,9 @@ state 280
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 282
-    for_l_2                        shift and go to state 283
-    empty                          shift and go to state 284
+    estatuto                       shift and go to state 283
+    for_l_2                        shift and go to state 284
+    empty                          shift and go to state 285
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -4735,14 +4749,14 @@ state 280
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 281
+state 282
 
     (68) if_3 -> ELSE L_C_BRACKET estatuto if_2 . R_C_BRACKET
 
-    R_C_BRACKET     shift and go to state 285
+    R_C_BRACKET     shift and go to state 286
 
 
-state 282
+state 283
 
     (70) for_l_2 -> estatuto . for_l_2
     (70) for_l_2 -> . estatuto for_l_2
@@ -4756,7 +4770,7 @@ state 282
     (51) estatuto -> . while_l
     (52) estatuto -> . func_extra
     (121) empty -> .
-    (53) asigna -> . variable asigna_point EQUAL exp SEMICOLON
+    (53) asigna -> . variable EQUAL add_operator exp asigna_point SEMICOLON
     (55) llamada -> . ID LPAR exp llamada_2 RPAR SEMICOLON
     (58) read -> . READ LPAR variable read_point RPAR SEMICOLON
     (60) write -> . WRITE LPAR write_2 write_3 RPAR SEMICOLON
@@ -4787,9 +4801,9 @@ state 282
   ! FOR             [ reduce using rule 121 (empty -> .) ]
   ! WHILE           [ reduce using rule 121 (empty -> .) ]
 
-    estatuto                       shift and go to state 282
-    for_l_2                        shift and go to state 286
-    empty                          shift and go to state 284
+    estatuto                       shift and go to state 283
+    for_l_2                        shift and go to state 287
+    empty                          shift and go to state 285
     asigna                         shift and go to state 71
     llamada                        shift and go to state 72
     read                           shift and go to state 73
@@ -4800,14 +4814,14 @@ state 282
     func_extra                     shift and go to state 78
     variable                       shift and go to state 79
 
-state 283
+state 284
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 . R_C_BRACKET SEMICOLON
 
-    R_C_BRACKET     shift and go to state 287
+    R_C_BRACKET     shift and go to state 288
 
 
-state 284
+state 285
 
     (71) for_l_2 -> empty .
     (75) func_extra -> empty .
@@ -4824,28 +4838,28 @@ state 284
   ! R_C_BRACKET     [ reduce using rule 75 (func_extra -> empty .) ]
 
 
-state 285
+state 286
 
     (68) if_3 -> ELSE L_C_BRACKET estatuto if_2 R_C_BRACKET .
 
     SEMICOLON       reduce using rule 68 (if_3 -> ELSE L_C_BRACKET estatuto if_2 R_C_BRACKET .)
 
 
-state 286
+state 287
 
     (70) for_l_2 -> estatuto for_l_2 .
 
     R_C_BRACKET     reduce using rule 70 (for_l_2 -> estatuto for_l_2 .)
 
 
-state 287
+state 288
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET . SEMICOLON
 
-    SEMICOLON       shift and go to state 288
+    SEMICOLON       shift and go to state 289
 
 
-state 288
+state 289
 
     (69) for_l -> FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON .
 
@@ -4891,68 +4905,68 @@ WARNING: shift/reduce conflict for WRITE in state 220 resolved as shift
 WARNING: shift/reduce conflict for IF in state 220 resolved as shift
 WARNING: shift/reduce conflict for FOR in state 220 resolved as shift
 WARNING: shift/reduce conflict for WHILE in state 220 resolved as shift
-WARNING: shift/reduce conflict for ID in state 243 resolved as shift
-WARNING: shift/reduce conflict for READ in state 243 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 243 resolved as shift
-WARNING: shift/reduce conflict for IF in state 243 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 243 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 243 resolved as shift
-WARNING: shift/reduce conflict for ID in state 245 resolved as shift
-WARNING: shift/reduce conflict for READ in state 245 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 245 resolved as shift
-WARNING: shift/reduce conflict for IF in state 245 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 245 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 245 resolved as shift
-WARNING: shift/reduce conflict for ID in state 256 resolved as shift
-WARNING: shift/reduce conflict for READ in state 256 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 256 resolved as shift
-WARNING: shift/reduce conflict for IF in state 256 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 256 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 256 resolved as shift
-WARNING: shift/reduce conflict for ID in state 260 resolved as shift
-WARNING: shift/reduce conflict for READ in state 260 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 260 resolved as shift
-WARNING: shift/reduce conflict for IF in state 260 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 260 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 260 resolved as shift
-WARNING: shift/reduce conflict for ID in state 276 resolved as shift
-WARNING: shift/reduce conflict for READ in state 276 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 276 resolved as shift
-WARNING: shift/reduce conflict for IF in state 276 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 276 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 276 resolved as shift
+WARNING: shift/reduce conflict for ID in state 244 resolved as shift
+WARNING: shift/reduce conflict for READ in state 244 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 244 resolved as shift
+WARNING: shift/reduce conflict for IF in state 244 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 244 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 244 resolved as shift
+WARNING: shift/reduce conflict for ID in state 246 resolved as shift
+WARNING: shift/reduce conflict for READ in state 246 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 246 resolved as shift
+WARNING: shift/reduce conflict for IF in state 246 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 246 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 246 resolved as shift
+WARNING: shift/reduce conflict for ID in state 257 resolved as shift
+WARNING: shift/reduce conflict for READ in state 257 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 257 resolved as shift
+WARNING: shift/reduce conflict for IF in state 257 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 257 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 257 resolved as shift
+WARNING: shift/reduce conflict for ID in state 261 resolved as shift
+WARNING: shift/reduce conflict for READ in state 261 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 261 resolved as shift
+WARNING: shift/reduce conflict for IF in state 261 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 261 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 261 resolved as shift
 WARNING: shift/reduce conflict for ID in state 277 resolved as shift
 WARNING: shift/reduce conflict for READ in state 277 resolved as shift
 WARNING: shift/reduce conflict for WRITE in state 277 resolved as shift
 WARNING: shift/reduce conflict for IF in state 277 resolved as shift
 WARNING: shift/reduce conflict for FOR in state 277 resolved as shift
 WARNING: shift/reduce conflict for WHILE in state 277 resolved as shift
-WARNING: shift/reduce conflict for ID in state 279 resolved as shift
-WARNING: shift/reduce conflict for READ in state 279 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 279 resolved as shift
-WARNING: shift/reduce conflict for IF in state 279 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 279 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 279 resolved as shift
+WARNING: shift/reduce conflict for ID in state 278 resolved as shift
+WARNING: shift/reduce conflict for READ in state 278 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 278 resolved as shift
+WARNING: shift/reduce conflict for IF in state 278 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 278 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 278 resolved as shift
 WARNING: shift/reduce conflict for ID in state 280 resolved as shift
 WARNING: shift/reduce conflict for READ in state 280 resolved as shift
 WARNING: shift/reduce conflict for WRITE in state 280 resolved as shift
 WARNING: shift/reduce conflict for IF in state 280 resolved as shift
 WARNING: shift/reduce conflict for FOR in state 280 resolved as shift
 WARNING: shift/reduce conflict for WHILE in state 280 resolved as shift
-WARNING: shift/reduce conflict for ID in state 282 resolved as shift
-WARNING: shift/reduce conflict for READ in state 282 resolved as shift
-WARNING: shift/reduce conflict for WRITE in state 282 resolved as shift
-WARNING: shift/reduce conflict for IF in state 282 resolved as shift
-WARNING: shift/reduce conflict for FOR in state 282 resolved as shift
-WARNING: shift/reduce conflict for WHILE in state 282 resolved as shift
+WARNING: shift/reduce conflict for ID in state 281 resolved as shift
+WARNING: shift/reduce conflict for READ in state 281 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 281 resolved as shift
+WARNING: shift/reduce conflict for IF in state 281 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 281 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 281 resolved as shift
+WARNING: shift/reduce conflict for ID in state 283 resolved as shift
+WARNING: shift/reduce conflict for READ in state 283 resolved as shift
+WARNING: shift/reduce conflict for WRITE in state 283 resolved as shift
+WARNING: shift/reduce conflict for IF in state 283 resolved as shift
+WARNING: shift/reduce conflict for FOR in state 283 resolved as shift
+WARNING: shift/reduce conflict for WHILE in state 283 resolved as shift
 WARNING: reduce/reduce conflict in state 46 resolved using rule (vars_5 -> empty)
 WARNING: rejected rule (vars_6 -> empty) in state 46
 WARNING: reduce/reduce conflict in state 97 resolved using rule (body_2 -> empty)
 WARNING: rejected rule (func_extra -> empty) in state 97
-WARNING: reduce/reduce conflict in state 258 resolved using rule (if_2 -> empty)
-WARNING: rejected rule (func_extra -> empty) in state 258
-WARNING: reduce/reduce conflict in state 262 resolved using rule (while_l_2 -> empty)
-WARNING: rejected rule (func_extra -> empty) in state 262
-WARNING: reduce/reduce conflict in state 284 resolved using rule (for_l_2 -> empty)
-WARNING: rejected rule (func_extra -> empty) in state 284
+WARNING: reduce/reduce conflict in state 259 resolved using rule (if_2 -> empty)
+WARNING: rejected rule (func_extra -> empty) in state 259
+WARNING: reduce/reduce conflict in state 263 resolved using rule (while_l_2 -> empty)
+WARNING: rejected rule (func_extra -> empty) in state 263
+WARNING: reduce/reduce conflict in state 285 resolved using rule (for_l_2 -> empty)
+WARNING: rejected rule (func_extra -> empty) in state 285
 WARNING: Rule (vars_6 -> empty) is never reduced

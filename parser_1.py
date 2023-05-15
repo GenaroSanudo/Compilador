@@ -255,13 +255,34 @@ def p_estatuto(p):
 
 def p_asigna(p):
     '''
-    asigna : variable asigna_point EQUAL exp SEMICOLON
+    asigna : variable EQUAL add_operator exp asigna_point SEMICOLON
     '''
 
 def p_asigna_point(p):
     '''
     asigna_point : empty
     '''
+    global types_stack
+    global operand_stack
+    global operator_stack
+    global cuadruplos
+
+    right_operand = operand_stack.pop()
+    right_type = types_stack.pop()
+
+    left_operand = operand_stack.pop()
+    left_type = types_stack.pop()
+
+    operator = operator_stack.pop()
+
+    try:
+        result_type = semantic_cube[left_type][right_type][operator]
+        cuadruplos.append(Cuadruple(operator, left_operand, right_operand, left_operand))
+        # Falta volver a agregar a stacks?
+    except:
+        print("Asignacion no compatible")
+
+
 
 def p_llamada(p):
     '''
