@@ -4,7 +4,7 @@
 #     1 int
 #     2 float
 #     3 bool
-#     4 char
+#     4 string
 
 #     5 +
 #     10 -
@@ -35,7 +35,7 @@ def traduccion(symbol):
     elif symbol == 'int' : return 1
     elif symbol == 'float' : return 2
     elif symbol == 'bool' : return 3
-    elif symbol == 'char' : return 4
+    elif symbol == 'string' : return 4
     elif symbol == '+' : return 5
     elif symbol == '-' : return 10
     elif symbol == '*' : return 15

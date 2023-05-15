@@ -318,8 +318,8 @@ def p_write(p):
 
 def p_write_2(p):
     '''
-    write_2 : exp
-                | CTE_S
+    write_2 : exp write_point
+                | CTE_S add_constant_s write_point
     '''
 
 def p_write_3(p):
@@ -327,6 +327,19 @@ def p_write_3(p):
     write_3 : COMMA write_2 write_3 
                 | empty
     '''
+
+def p_write_point(p):
+    '''
+    write_point : empty
+    '''
+    global operand_stack
+    global cuadruplos
+
+    op = operand_stack.pop()
+    types_stack.pop()
+    cuadruplos.append(Cuadruple('WRITE', None, None, op))
+
+    
 
 def p_if_1(p):
     '''
@@ -597,6 +610,16 @@ def p_add_constant_i(p):
     global types_stack
     # Adds type and operand to the stack
     types_stack.append(1)
+    operand_stack.append(p[-1])
+
+def p_add_constant_s(p):
+    '''
+    add_constant_s : empty
+    '''
+    global operand_stack
+    global types_stack
+    # Adds type and operand to the stack
+    types_stack.append(4)
     operand_stack.append(p[-1])
 
 def p_add_constant_f(p):
