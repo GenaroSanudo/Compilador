@@ -51,6 +51,15 @@ class Directory:
     def getVariables(self, name):
         if (self.func_directory.get(name) != None):
             return self.func_directory[name].get('vars')
+    
+    def checkVariable(self, func, var):
+        if (self.func_directory[func]['vars'].get(var) != None):
+            return True
+        else:
+            return False
+    
+    def getType(self, func, var):
+        return self.func_directory[func]['vars'][var]['type']
         
     def getParameters(self, name):
         if (self.func_directory.get(name) != None):

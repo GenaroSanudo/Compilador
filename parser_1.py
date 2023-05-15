@@ -77,7 +77,7 @@ def p_main(p):
 
 def p_body(p):
     '''
-    body : vars estatuto body_2
+    body : vars func_agrega_v estatuto body_2
     '''
     
 
@@ -204,8 +204,30 @@ def p_punto_param(p):
 
 def p_variable(p):
     '''
-    variable : ID variable_2
+    variable : ID variable_2 variable_point
     '''
+
+def p_variable_point(p):
+    '''
+    variable_point : empty
+    '''
+    global global_vars
+    global current_function
+    global func_dir
+    global operand_stack
+    global types_stack
+
+    if (func_dir.checkVariable(current_function, p[-2])):
+        type = func_dir.getType(current_function, p[-2])
+        operand_stack.append(p[-2])
+        types_stack.append(type)
+    elif(func_dir.checkVariable('program', p[-2])):
+        type = func_dir.getType('program', p[-2])
+        operand_stack.append(p[-2])
+        types_stack.append(type)
+    else:
+        print("Esta variable no esta declarada")
+
 
 def p_variable_2(p):
     '''
@@ -233,7 +255,12 @@ def p_estatuto(p):
 
 def p_asigna(p):
     '''
-    asigna : variable EQUAL exp SEMICOLON
+    asigna : variable asigna_point EQUAL exp SEMICOLON
+    '''
+
+def p_asigna_point(p):
+    '''
+    asigna_point : empty
     '''
 
 def p_llamada(p):
@@ -249,8 +276,19 @@ def p_llamada_2(p):
 
 def p_read(p):
     '''
-    read : READ LPAR variable RPAR SEMICOLON
+    read : READ LPAR variable read_point RPAR SEMICOLON
     '''
+
+def p_read_point(p):
+    '''
+    read_point : empty
+    '''
+    global operand_stack
+    global types_stack
+    global cuadruplos
+    var = operand_stack.pop()
+    types_stack.pop()
+    cuadruplos.append(Cuadruple('READ', None, None, var))
 
 def p_write(p):
     '''
@@ -557,8 +595,8 @@ def p_function(p):
 
 def p_function_2(p):
     '''
-    function_2 : tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET func_agrega_v
-                    | VOID ID function_punto2 LPAR param RPAR L_C_BRACKET body R_C_BRACKET func_agrega_v
+    function_2 : tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET 
+                    | VOID ID function_punto2 LPAR param RPAR L_C_BRACKET body R_C_BRACKET
     '''
 
 def p_function_3(p):
@@ -619,4 +657,4 @@ if __name__ == '__main__':
         for element in cuadruplos:
             element.print()
         print(operator_stack, operand_stack, types_stack)
-        print(global_vars)
+        # print(global_vars)

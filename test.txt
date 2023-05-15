@@ -18,6 +18,7 @@ func int pavo (int leon, char chancla){
 
 func void ino (float ballena, int foca){
     var int inof;
+    inof = 3;
 
     
 
