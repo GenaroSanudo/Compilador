@@ -3,6 +3,7 @@ from lexer import tokens
 from cubo import semantic_cube, traduccion
 import function_directory
 from cuadruple import Cuadruple
+import virtual_adresses as va
 
 # Function directory
 current_function = None
@@ -22,9 +23,32 @@ operand_stack = []
 # stack_saltos
 jump_stack = []
 
-temporal = 0
-
 func_dir = function_directory.Directory()
+
+# Direcciones virtuales
+# global_int = 0
+# global_float = 2000
+# global_string = 4000
+
+# global_temp_int = 6000
+# global_temp_float = 8000
+# global_temp_bool = 10000
+# global_temp_string = 12000
+
+# local_int = 14000
+# local_float = 16000
+# local_string = 18000
+
+# local_temp_int = 20000
+# local_temp_float = 22000
+# local_temp_bool = 24000
+# local_temp_string = 26000
+
+# constant_int = 28000
+# constant_float = 30000
+# constant_string = 32000
+
+constant_table = {}
 
 def p_program(p):
     '''
@@ -37,6 +61,7 @@ def p_program_point(p):
     '''
     global current_function
     current_function = p[-1]
+    print(p[-1])
 
 def p_modules(p):
     '''
@@ -122,8 +147,12 @@ def p_vars_3(p):
     var_id = p[1]
     global current_type
     global var_list
+    global current_function
+
     type = traduccion(current_type)
-    var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0}
+    temp = va.getAddress(current_function, type)
+
+    var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : temp}
 
 def p_vars_4(p):
     '''
@@ -219,7 +248,7 @@ def p_variable_point(p):
 
     if (func_dir.checkVariable(current_function, p[-2])):
         type = func_dir.getType(current_function, p[-2])
-        operand_stack.append(p[-2])
+        operand_stack.append(func_dir.func_directory[current_function]['vars'][p[-2]]['virtual_dir'])
         types_stack.append(type)
     elif(func_dir.checkVariable('program', p[-2])):
         type = func_dir.getType('program', p[-2])
@@ -277,7 +306,7 @@ def p_asigna_point(p):
 
     try:
         result_type = semantic_cube[left_type][right_type][operator]
-        cuadruplos.append(Cuadruple(operator, left_operand, right_operand, left_operand))
+        cuadruplos.append(Cuadruple(operator, right_operand, None, left_operand))
         # Falta volver a agregar a stacks?
     except:
         print("Asignacion no compatible")
@@ -505,12 +534,12 @@ def p_add_operator_1(p):
             except:
                 print("Type mismatch")
                 return
-            global temporal
+            global current_function
+            temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
-            operand_stack.append(temporal)
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            operand_stack.append(temp)
             types_stack.append(result_type)
-            temporal = temporal + 1
 
 
 def p_add_operator_2(p):
@@ -535,12 +564,12 @@ def p_add_operator_2(p):
             except:
                 print("Type mismatch")
                 return
-            global temporal
+            global current_function
+            temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
-            operand_stack.append(temporal)
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            operand_stack.append(temp)
             types_stack.append(result_type)
-            temporal = temporal + 1
 
     
 def p_add_operator_3(p):
@@ -566,12 +595,12 @@ def p_add_operator_3(p):
             except:
                 print("Type mismatch", left_operand, left_type, right_operand, right_type, operator)
                 return
-            global temporal
+            global current_function
+            temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
-            operand_stack.append(temporal)
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            operand_stack.append(temp)
             types_stack.append(result_type)
-            temporal = temporal + 1
 
 def p_add_operator_4(p):
     '''
@@ -595,12 +624,12 @@ def p_add_operator_4(p):
             except:
                 print("Type mismatch")
                 return
-            global temporal
+            global current_function
+            temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temporal))
-            operand_stack.append(temporal)
+            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            operand_stack.append(temp)
             types_stack.append(result_type)
-            temporal = temporal + 1
 
 def p_add_constant_i(p):
     '''
@@ -608,9 +637,17 @@ def p_add_constant_i(p):
     '''
     global operand_stack
     global types_stack
+    global constant_table
+
     # Adds type and operand to the stack
-    types_stack.append(1)
-    operand_stack.append(p[-1])
+    if (constant_table.get(str(p[-1])) != None):
+        types_stack.append(constant_table[str(p[-1])]['type'])
+        operand_stack.append(constant_table[str(p[-1])]['virtual_dir'])
+    else:
+        constant_table[str(p[-1])] = {'type' : 1, 'virtual_dir' : va.constant_int}
+        types_stack.append(1)
+        operand_stack.append(va.constant_int)
+        va.constant_int = va.constant_int + 1
 
 def p_add_constant_s(p):
     '''
@@ -618,9 +655,16 @@ def p_add_constant_s(p):
     '''
     global operand_stack
     global types_stack
+    global constant_table
     # Adds type and operand to the stack
-    types_stack.append(4)
-    operand_stack.append(p[-1])
+    if (constant_table.get(str(p[-1])) != None):
+        types_stack.append(constant_table[str(p[-1])]['type'])
+        operand_stack.append(constant_table[str(p[-1])]['virtual_dir'])
+    else:
+        constant_table[str(p[-1])] = {'type' : 4, 'virtual_dir' : va.constant_string}
+        types_stack.append(4)
+        operand_stack.append(va.constant_string)
+        va.constant_string = va.constant_string + 1
 
 def p_add_constant_f(p):
     '''
@@ -628,9 +672,17 @@ def p_add_constant_f(p):
     '''
     global operand_stack
     global types_stack
+    global constant_table
+    global constant_float    
     # Adds type and operand to the stack
-    types_stack.append(2)
-    operand_stack.append(p[-1])
+    if (constant_table.get(str(p[-1])) != None):
+        types_stack.append(constant_table[str(p[-1])]['type'])
+        operand_stack.append(constant_table[str(p[-1])]['virtual_dir'])
+    else:
+        constant_table[str(p[-1])] = {'type' : 2, 'virtual_dir' : va.constant_float}
+        types_stack.append(1)
+        operand_stack.append(va.constant_float)
+        va.constant_float = va.constant_float + 1
     
 def p_function(p):
     '''
@@ -701,4 +753,6 @@ if __name__ == '__main__':
         for element in cuadruplos:
             element.print()
         print(operator_stack, operand_stack, types_stack)
-        # print(global_vars)
+        func_dir.print()
+        # print(va.constant_float)
+        # print(constant_table)

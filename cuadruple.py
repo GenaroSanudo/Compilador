@@ -10,7 +10,7 @@ class Cuadruple:
         print("Operator : ", self.operator)
         print("L_operand : ", self.l_operand)
         print("R_operand : ", self.r_operand)
-        print("Target : ", self.target)
+        print("Result : ", self.target)
     
 
 

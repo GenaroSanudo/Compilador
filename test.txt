@@ -13,13 +13,15 @@ var float gatomat[3][4];
 func int pavo (int leon, char chancla){
     var int pavote;
     
-    return((3 < 2));
+    return((3 + 2) * 1);
 };
 
 func void ino (float ballena, int foca){
     var int inof;
     inof = 3.0;
     write ("fdjkf");
+    write ("fdjkf");
+    write ("ola");
 
     
 
