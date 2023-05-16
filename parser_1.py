@@ -61,7 +61,6 @@ def p_program_point(p):
     '''
     global current_function
     current_function = p[-1]
-    print(p[-1])
 
 def p_modules(p):
     '''
@@ -97,8 +96,16 @@ def p_modules_3(p):
 
 def p_main(p):
     '''
-    main : MAIN LPAR RPAR L_C_BRACKET body R_C_BRACKET SEMICOLON
+    main : MAIN main_point LPAR RPAR L_C_BRACKET body R_C_BRACKET SEMICOLON
     '''
+
+def p_main_point(p):
+    '''
+    main_point : empty
+    '''
+    global current_function
+    current_function = p[-1]
+    func_dir.addFunction(p[-1], None)
 
 def p_body(p):
     '''
@@ -494,7 +501,7 @@ def p_add_floor(p):
     add_floor : empty
     '''
     global operator_stack
-    operator_stack.append(70)
+    operator_stack.append(75)
 
 def p_remove_floor(p):
     '''
@@ -520,7 +527,7 @@ def p_add_operator_1(p):
     global operand_stack
     global types_stack
     if (len(operator_stack) != 0) :
-        if ((operator_stack[-1] == 15) or (operator_stack[-1] == 20)):
+        if ((operator_stack[-1] == 20) or (operator_stack[-1] == 25)):
             right_operand = operand_stack.pop()
             right_type = types_stack.pop()
 
@@ -550,7 +557,7 @@ def p_add_operator_2(p):
     global operand_stack
     global types_stack
     if (len(operator_stack) != 0) :
-        if ((operator_stack[-1] == 5) or (operator_stack[-1] == 10)):
+        if ((operator_stack[-1] == 10) or (operator_stack[-1] == 15)):
             right_operand = operand_stack.pop()
             right_type = types_stack.pop()
 
@@ -580,8 +587,8 @@ def p_add_operator_3(p):
     global operand_stack
     global types_stack
     if (len(operator_stack) != 0) :
-        if ((operator_stack[-1] == 25) or (operator_stack[-1] == 30) or (operator_stack[-1] == 35) or (operator_stack[-1] == 40) or
-            (operator_stack[-1] == 45) or (operator_stack[-1] == 50)):
+        if ((operator_stack[-1] == 30) or (operator_stack[-1] == 35) or (operator_stack[-1] == 40) or (operator_stack[-1] == 45) or
+            (operator_stack[-1] == 50) or (operator_stack[-1] == 55)):
             right_operand = operand_stack.pop()
             right_type = types_stack.pop()
 
@@ -610,7 +617,7 @@ def p_add_operator_4(p):
     global operand_stack
     global types_stack
     if (len(operator_stack) != 0) :
-        if ((operator_stack[-1] == 60) or (operator_stack[-1] == 65)):
+        if ((operator_stack[-1] == 65) or (operator_stack[-1] == 70)):
             right_operand = operand_stack.pop()
             right_type = types_stack.pop()
 
@@ -750,9 +757,9 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        for element in cuadruplos:
-            element.print()
-        print(operator_stack, operand_stack, types_stack)
-        func_dir.print()
+        # for element in cuadruplos:
+        #     element.print()
+        # print(operator_stack, operand_stack, types_stack)
+        # func_dir.print()
         # print(va.constant_float)
         # print(constant_table)
