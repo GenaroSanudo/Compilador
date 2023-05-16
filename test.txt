@@ -19,9 +19,12 @@ func int pavo (int leon, char chancla){
 func void ino (float ballena, int foca){
     var int inof;
     inof = 3.0;
-    while (3 > 2){
+    if(2>3){
+        write (inof);
+    } else {
         write(inof);
     };
+    
 
 };
 

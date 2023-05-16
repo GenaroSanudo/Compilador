@@ -450,7 +450,7 @@ def p_for_l_2(p):
 
 def p_while_l(p):
     '''
-    while_l : WHILE while_point LPAR exp RPAR while_point_2 L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON while_point_3
+    while_l : WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
     '''
 
 def p_while_l_2(p):
@@ -458,45 +458,6 @@ def p_while_l_2(p):
     while_l_2 : estatuto while_l_2
                     | empty
     '''
-
-def p_while_point(p):
-    '''
-    while_point : empty
-    '''
-    global jump_stack
-    global cuadruplos
-    jump_stack.append(len(cuadruplos))
-
-def p_while_point_2(p):
-    '''
-    while_point_2 : empty
-    '''
-    global jump_stack
-    global cuadruplos
-    global types_stack
-    global operand_stack
-
-    type = types_stack.pop()
-
-    if (type != 3):
-        print("Type mismatch")
-    else:
-        result = operand_stack.pop()
-        cuadruplos.append(Cuadruple(135, result, None, None))
-        jump_stack.append(len(cuadruplos)-1)
-
-    jump_stack.append(len(cuadruplos))
-
-def p_while_point_3(p):
-    '''
-    while_point_3 : empty
-    '''
-    global jump_stack
-    global cuadruplos
-    end = jump_stack.pop()
-    ret = jump_stack.pop()
-    cuadruplos.append(Cuadruple(130,None, None, ret))
-    cuadruplos = fillCuad(ret, len(cuadruplos), cuadruplos)
 
 def p_func_extra(p):
     '''
@@ -842,7 +803,7 @@ if __name__ == '__main__':
         cont = 0
         for element in cuadruplos:
             print (cont)
-            cont = cont +1 
+            cont = cont +1
             element.print()
         print(operator_stack, operand_stack, types_stack)
         # func_dir.print()
