@@ -22,11 +22,14 @@
 #     75 (
 #     80 )
 {
-    # 100 : GOTO
-    # 105 : GOTOF
-    # 110 : GOTOV
-    # 115 : ENDFUNC
-    # 120
+    # 100 : READ
+    # 105 : WRITE
+    # 110 : 
+    # 115 : 
+    # 130 : GOTO
+    # 135 : GOTOF
+    # 140 : GOTOV
+    # 145 ENDFUNC
 }
 # }
 
@@ -38,6 +41,7 @@ def traduccion(symbol):
     elif symbol == 'float' : return 2
     elif symbol == 'bool' : return 3
     elif symbol == 'string' : return 4
+    elif symbol == 'dataframe' : return 5
     elif symbol == '+' : return 10
     elif symbol == '-' : return 15
     elif symbol == '*' : return 20

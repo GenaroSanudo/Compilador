@@ -157,7 +157,10 @@ def p_vars_3(p):
     global current_function
 
     type = traduccion(current_type)
+
     temp = va.getAddress(current_function, type)
+    if (type == 5):
+        print(current_function, type)
 
     var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : temp}
 
@@ -345,7 +348,7 @@ def p_read_point(p):
     global cuadruplos
     var = operand_stack.pop()
     types_stack.pop()
-    cuadruplos.append(Cuadruple('READ', None, None, var))
+    cuadruplos.append(Cuadruple(100, None, None, var))
 
 def p_write(p):
     '''
@@ -373,7 +376,7 @@ def p_write_point(p):
 
     op = operand_stack.pop()
     types_stack.pop()
-    cuadruplos.append(Cuadruple('WRITE', None, None, op))
+    cuadruplos.append(Cuadruple(105, None, None, op))
 
     
 
@@ -757,9 +760,9 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        # for element in cuadruplos:
-        #     element.print()
-        # print(operator_stack, operand_stack, types_stack)
+        for element in cuadruplos:
+            element.print()
+        print(operator_stack, operand_stack, types_stack)
         # func_dir.print()
         # print(va.constant_float)
         # print(constant_table)
