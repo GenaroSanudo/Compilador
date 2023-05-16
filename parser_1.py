@@ -2,7 +2,7 @@ import ply.yacc as yacc
 from lexer import tokens
 from cubo import semantic_cube, traduccion
 import function_directory
-from cuadruple import Cuadruple
+from cuadruple import Cuadruple, fillCuad
 import virtual_adresses as va
 
 # Function directory
@@ -382,19 +382,60 @@ def p_write_point(p):
 
 def p_if_1(p):
     '''
-    if_1 : IF LPAR exp RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON
+    if_1 : IF LPAR exp if_point RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON if_point_2
     '''
 
 def p_if_2(p):
     '''
-    if_2 : estatuto if_2 
+    if_2 :  estatuto if_2 
             | empty
     '''
 
 def p_if_3(p):
     '''
-    if_3 : ELSE L_C_BRACKET estatuto if_2 R_C_BRACKET
+    if_3 : ELSE if_point_3 L_C_BRACKET estatuto if_2 R_C_BRACKET
+            | empty
     '''
+
+def p_if_point(p):
+    '''
+    if_point : empty
+    '''
+    global types_stack
+    global operand_stack
+    global jump_stack
+    global cuadruplos
+    
+    type = types_stack.pop()
+
+    if (type != 3):
+        print ("TYPE MISMATCH")
+    else:
+        result = operand_stack.pop()
+        cuadruplos.append(Cuadruple(135, result, None, None))
+        jump_stack.append(len(cuadruplos)-1)
+    
+def p_if_point_2(p):
+    '''
+    if_point_2 : empty
+    '''
+    global jump_stack
+    global cuadruplos
+    
+    end = jump_stack.pop()
+    cuadruplos = fillCuad(end, len(cuadruplos) ,cuadruplos)
+
+def p_if_point_3(p):
+    '''
+    if_point_3 : empty
+    '''
+    global jump_stack
+    global cuadruplos
+
+    cuadruplos.append(Cuadruple(130, None, None, None))
+    false = jump_stack.pop()
+    jump_stack.append(len(cuadruplos)-1)
+    cuadruplos = fillCuad(false, len(cuadruplos), cuadruplos)
 
 def p_for_l(p):
     '''
@@ -409,7 +450,7 @@ def p_for_l_2(p):
 
 def p_while_l(p):
     '''
-    while_l : WHILE LPAR exp RPAR L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON
+    while_l : WHILE while_point LPAR exp RPAR while_point_2 L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON while_point_3
     '''
 
 def p_while_l_2(p):
@@ -417,6 +458,45 @@ def p_while_l_2(p):
     while_l_2 : estatuto while_l_2
                     | empty
     '''
+
+def p_while_point(p):
+    '''
+    while_point : empty
+    '''
+    global jump_stack
+    global cuadruplos
+    jump_stack.append(len(cuadruplos))
+
+def p_while_point_2(p):
+    '''
+    while_point_2 : empty
+    '''
+    global jump_stack
+    global cuadruplos
+    global types_stack
+    global operand_stack
+
+    type = types_stack.pop()
+
+    if (type != 3):
+        print("Type mismatch")
+    else:
+        result = operand_stack.pop()
+        cuadruplos.append(Cuadruple(135, result, None, None))
+        jump_stack.append(len(cuadruplos)-1)
+
+    jump_stack.append(len(cuadruplos))
+
+def p_while_point_3(p):
+    '''
+    while_point_3 : empty
+    '''
+    global jump_stack
+    global cuadruplos
+    end = jump_stack.pop()
+    ret = jump_stack.pop()
+    cuadruplos.append(Cuadruple(130,None, None, ret))
+    cuadruplos = fillCuad(ret, len(cuadruplos), cuadruplos)
 
 def p_func_extra(p):
     '''
@@ -682,8 +762,7 @@ def p_add_constant_f(p):
     '''
     global operand_stack
     global types_stack
-    global constant_table
-    global constant_float    
+    global constant_table  
     # Adds type and operand to the stack
     if (constant_table.get(str(p[-1])) != None):
         types_stack.append(constant_table[str(p[-1])]['type'])
@@ -760,7 +839,10 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
+        cont = 0
         for element in cuadruplos:
+            print (cont)
+            cont = cont +1 
             element.print()
         print(operator_stack, operand_stack, types_stack)
         # func_dir.print()

@@ -1,3 +1,9 @@
+
+
+def fillCuad(end, cont, cuadruplos):
+    cuadruplos[end].target = cont
+    return cuadruplos
+
 # operador, loperand, roperand, target
 class Cuadruple:
     def __init__(self, operator, l_operand, r_operand, target) -> None:
@@ -12,7 +18,3 @@ class Cuadruple:
         print("R_operand : ", self.r_operand)
         print("Result : ", self.target)
     
-
-
-cuadruples = Cuadruple(1,2,3,4)
-

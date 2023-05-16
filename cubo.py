@@ -5,6 +5,7 @@
 #     2 float
 #     3 bool
 #     4 string
+#     5 dataframe
 
 #     5 +
 #     10 -
