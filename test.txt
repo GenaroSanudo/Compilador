@@ -1,26 +1,12 @@
 program pato : 
 
-var int patito, patota;
 
-var float perro;
-
-var dataframe perrote;
-
-var int gatoarr[5];
-
-var float gatomat[3][4];
-
-func int pavo (int leon, char chancla){
-    var int pavote;
-    
-    return((3 + 2) * 1);
-};
 
 func void ino (float ballena, int foca){
     var int inof;
-    inof = 3.0;
-    while (3 > 2){
-        write(inof);
+    
+    for (inof = 3 to 5){
+        read (inof);
     };
 
 };

@@ -12,6 +12,9 @@ var_list = {}
 last_id = None
 current_type = None
 
+# For loop
+v_control = None
+
 # lista de cuadruplos
 cuadruplos = []
 # stack_operadores
@@ -24,6 +27,8 @@ operand_stack = []
 jump_stack = []
 
 func_dir = function_directory.Directory()
+
+
 
 # Direcciones virtuales
 # global_int = 0
@@ -258,7 +263,7 @@ def p_variable_point(p):
 
     if (func_dir.checkVariable(current_function, p[-2])):
         type = func_dir.getType(current_function, p[-2])
-        operand_stack.append(func_dir.func_directory[current_function]['vars'][p[-2]]['virtual_dir'])
+        operand_stack.append(func_dir.getAddress(current_function, p[-2]))
         types_stack.append(type)
     elif(func_dir.checkVariable('program', p[-2])):
         type = func_dir.getType('program', p[-2])
@@ -439,14 +444,125 @@ def p_if_point_3(p):
 
 def p_for_l(p):
     '''
-    for_l : FOR LPAR ID RPAR EQUAL exp TO exp RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON
+    for_l : FOR LPAR ID for_point_1 EQUAL exp for_point_2 TO exp for_point_3 RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON for_point_4
     '''
+
 
 def p_for_l_2(p):
     '''
     for_l_2 : estatuto for_l_2
                 | empty
     '''
+
+def p_for_point_1(p):
+    '''
+    for_point_1 : empty
+    '''
+    global operand_stack
+    global types_stack
+    global func_dir
+    global current_function
+    
+    
+    type = func_dir.getType(current_function, p[-1])
+    if ((type != 1) and (type != 2)):
+        print("TYPE MISMATCH")
+    else:
+        operand_stack.append(func_dir.getAddress(current_function, p[-1]))
+        types_stack.append(type)
+
+def p_for_point_2(p):
+    '''
+    for_point_2 : empty
+    '''
+    global operand_stack
+    global types_stack
+    global func_dir
+    global current_function
+    global cuadruplos
+    global v_control
+
+    exp_type = types_stack.pop()
+
+    if ((exp_type != 1) and (exp_type != 2)):
+        print("TYPE MISMATCH")
+    else:
+        exp = operand_stack.pop()
+        v_control = operand_stack[-1]
+        control_type = types_stack[-1]
+        try:
+            tipo_res = semantic_cube[60][control_type][exp_type]
+            cuadruplos.append(Cuadruple(60, exp, None, v_control))
+        except:
+            print ("TYPE MISMATCH")
+            return
+
+def p_for_point_3(p):
+    '''
+    for_point_3 : empty
+    '''
+    global operand_stack
+    global types_stack
+    global jump_stack
+    global func_dir
+    global current_function
+    global v_control
+    
+    exp_type = types_stack.pop()
+
+    if ((exp_type != 1) and (exp_type != 2)):
+        print("TYPE MISMATCH")
+    else:
+        exp = operand_stack.pop()
+        v_final = va.getTemporalAddress(current_function, 1)
+        cuadruplos.append(Cuadruple(60, exp, None, v_final))
+        
+        # if (constant_table.get("Tx") != None):
+        #     Tx = constant_table["Tx"]['virtual_dir']
+        # else:
+        #     constant_table["Tx"] = {'type' : 3, 'virtual_dir' : va.constant_bool}
+        #     Tx = va.constant_bool
+        #     va.constant_bool = va.constant_bool + 1
+
+        Tx = va.local_temp_bool
+        va.local_temp_bool = va.local_temp_bool + 1
+
+        cuadruplos.append(Cuadruple(30, v_control, v_final, Tx ))
+
+        jump_stack.append(len(cuadruplos) - 1)
+        cuadruplos.append(Cuadruple(130, Tx, None, None))
+        jump_stack.append(len(cuadruplos) - 1)
+
+def p_for_point_4(p):
+    '''
+    for_point_4 : empty
+    '''
+    global cuadruplos
+    global v_control
+    global operand_stack
+    global jump_stack
+    global types_stack
+
+    Ty = va.local_temp_int
+    # constant_table["Ty"] = {'type' : 1, 'virtual_dir' : va.constant_int}
+    va.local_temp_int = va.local_temp_int + 1
+
+    cuadruplos.append(Cuadruple(10, v_control, 1, Ty))
+    cuadruplos.append(Cuadruple(60, Ty, None, v_control))
+    cuadruplos.append(Cuadruple(60, Ty, None, operand_stack[-1]))
+
+    Fin = jump_stack.pop()
+    Ret = jump_stack.pop()
+
+    cuadruplos.append(Cuadruple(130,None, None, Fin))
+    cuadruplos = fillCuad(Ret, len(cuadruplos), cuadruplos)
+
+    operand_stack.pop()
+    types_stack.pop()
+
+
+
+
 
 def p_while_l(p):
     '''
@@ -847,4 +963,4 @@ if __name__ == '__main__':
         print(operator_stack, operand_stack, types_stack)
         # func_dir.print()
         # print(va.constant_float)
-        # print(constant_table)
+        print(constant_table)

@@ -64,7 +64,11 @@ class Directory:
     def getParameters(self, name):
         if (self.func_directory.get(name) != None):
             return self.func_directory[name].get('params')
-            
+
+    def getAddress(self, current_function, var):
+        dir = self.func_directory[current_function]['vars'][var]['virtual_dir']
+        return dir
+             
             
     def print(self):
         print(self.func_directory)
