@@ -2,7 +2,7 @@ import ply.yacc as yacc
 from lexer import tokens
 from cubo import semantic_cube, traduccion
 import function_directory
-from cuadruple import Cuadruple, fillCuad
+from cuadruplo import Cuadruplo, fillCuad
 import virtual_adresses as va
 
 # Function directory
@@ -321,10 +321,10 @@ def p_asigna_point(p):
 
     try:
         result_type = semantic_cube[left_type][right_type][operator]
-        cuadruplos.append(Cuadruple(operator, right_operand, None, left_operand))
+        cuadruplos.append(Cuadruplo(operator, right_operand, None, left_operand))
         # Falta volver a agregar a stacks?
     except:
-        print("Asignacion no compatible")
+        raise Exception ("Asignación no compatible")
 
 
 
@@ -353,7 +353,7 @@ def p_read_point(p):
     global cuadruplos
     var = operand_stack.pop()
     types_stack.pop()
-    cuadruplos.append(Cuadruple(100, None, None, var))
+    cuadruplos.append(Cuadruplo(100, None, None, var))
 
 def p_write(p):
     '''
@@ -381,7 +381,7 @@ def p_write_point(p):
 
     op = operand_stack.pop()
     types_stack.pop()
-    cuadruplos.append(Cuadruple(105, None, None, op))
+    cuadruplos.append(Cuadruplo(105, None, None, op))
 
     
 
@@ -414,10 +414,10 @@ def p_if_point(p):
     type = types_stack.pop()
 
     if (type != 3):
-        print ("TYPE MISMATCH")
+        raise Exception ("Type mismatch in if")
     else:
         result = operand_stack.pop()
-        cuadruplos.append(Cuadruple(135, result, None, None))
+        cuadruplos.append(Cuadruplo(135, result, None, None))
         jump_stack.append(len(cuadruplos)-1)
     
 def p_if_point_2(p):
@@ -437,7 +437,7 @@ def p_if_point_3(p):
     global jump_stack
     global cuadruplos
 
-    cuadruplos.append(Cuadruple(130, None, None, None))
+    cuadruplos.append(Cuadruplo(130, None, None, None))
     false = jump_stack.pop()
     jump_stack.append(len(cuadruplos)-1)
     cuadruplos = fillCuad(false, len(cuadruplos), cuadruplos)
@@ -466,7 +466,7 @@ def p_for_point_1(p):
     
     type = func_dir.getType(current_function, p[-1])
     if ((type != 1) and (type != 2)):
-        print("TYPE MISMATCH")
+        raise Exception ("Type mismatch in for loop")
     else:
         operand_stack.append(func_dir.getAddress(current_function, p[-1]))
         types_stack.append(type)
@@ -485,17 +485,16 @@ def p_for_point_2(p):
     exp_type = types_stack.pop()
 
     if ((exp_type != 1) and (exp_type != 2)):
-        print("TYPE MISMATCH")
+        raise Exception ("Type mismatch in for loop")
     else:
         exp = operand_stack.pop()
         v_control = operand_stack[-1]
         control_type = types_stack[-1]
         try:
-            tipo_res = semantic_cube[60][control_type][exp_type]
-            cuadruplos.append(Cuadruple(60, exp, None, v_control))
+            tipo_res = semantic_cube[exp_type][control_type][60]
+            cuadruplos.append(Cuadruplo(60, exp, None, v_control))
         except:
-            print ("TYPE MISMATCH")
-            return
+            raise Exception ("Type mismatch in for loop")
 
 def p_for_point_3(p):
     '''
@@ -511,11 +510,11 @@ def p_for_point_3(p):
     exp_type = types_stack.pop()
 
     if ((exp_type != 1) and (exp_type != 2)):
-        print("TYPE MISMATCH")
+        raise Exception ("Type mismatch in for loop")
     else:
         exp = operand_stack.pop()
         v_final = va.getTemporalAddress(current_function, 1)
-        cuadruplos.append(Cuadruple(60, exp, None, v_final))
+        cuadruplos.append(Cuadruplo(60, exp, None, v_final))
         
         # if (constant_table.get("Tx") != None):
         #     Tx = constant_table["Tx"]['virtual_dir']
@@ -527,10 +526,10 @@ def p_for_point_3(p):
         Tx = va.local_temp_bool
         va.local_temp_bool = va.local_temp_bool + 1
 
-        cuadruplos.append(Cuadruple(30, v_control, v_final, Tx ))
+        cuadruplos.append(Cuadruplo(30, v_control, v_final, Tx ))
 
         jump_stack.append(len(cuadruplos) - 1)
-        cuadruplos.append(Cuadruple(130, Tx, None, None))
+        cuadruplos.append(Cuadruplo(130, Tx, None, None))
         jump_stack.append(len(cuadruplos) - 1)
 
 def p_for_point_4(p):
@@ -547,14 +546,14 @@ def p_for_point_4(p):
     # constant_table["Ty"] = {'type' : 1, 'virtual_dir' : va.constant_int}
     va.local_temp_int = va.local_temp_int + 1
 
-    cuadruplos.append(Cuadruple(10, v_control, 1, Ty))
-    cuadruplos.append(Cuadruple(60, Ty, None, v_control))
-    cuadruplos.append(Cuadruple(60, Ty, None, operand_stack[-1]))
+    cuadruplos.append(Cuadruplo(10, v_control, 1, Ty))
+    cuadruplos.append(Cuadruplo(60, Ty, None, v_control))
+    cuadruplos.append(Cuadruplo(60, Ty, None, operand_stack[-1]))
 
     Fin = jump_stack.pop()
     Ret = jump_stack.pop()
 
-    cuadruplos.append(Cuadruple(130,None, None, Fin))
+    cuadruplos.append(Cuadruplo(130,None, None, Fin))
     cuadruplos = fillCuad(Ret, len(cuadruplos), cuadruplos)
 
     operand_stack.pop()
@@ -595,10 +594,10 @@ def p_while_point_2(p):
     type = types_stack.pop()
 
     if (type != 3):
-        print("Type mismatch")
+        raise Exception ("Type mismatch in while loop")
     else:
         result = operand_stack.pop()
-        cuadruplos.append(Cuadruple(135, result, None, None))
+        cuadruplos.append(Cuadruplo(135, result, None, None))
         jump_stack.append(len(cuadruplos)-1)
 
     jump_stack.append(len(cuadruplos))
@@ -611,7 +610,7 @@ def p_while_point_3(p):
     global cuadruplos
     end = jump_stack.pop()
     ret = jump_stack.pop()
-    cuadruplos.append(Cuadruple(130,None, None, ret))
+    cuadruplos.append(Cuadruplo(130,None, None, ret))
     cuadruplos = fillCuad(ret, len(cuadruplos), cuadruplos)
 
 def p_func_extra(p):
@@ -738,12 +737,11 @@ def p_add_operator_1(p):
             try: 
                 result_type = semantic_cube[left_type][right_type][operator]
             except:
-                print("Type mismatch")
-                return
+                raise Exception ("Type mismatch in addition")
             global current_function
             temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            cuadruplos.append(Cuadruplo(operator, left_operand, right_operand, temp))
             operand_stack.append(temp)
             types_stack.append(result_type)
 
@@ -768,12 +766,11 @@ def p_add_operator_2(p):
             try: 
                 result_type = semantic_cube[left_type][right_type][operator]
             except:
-                print("Type mismatch")
-                return
+                raise Exception ("Type mismatch in addition")
             global current_function
             temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            cuadruplos.append(Cuadruplo(operator, left_operand, right_operand, temp))
             operand_stack.append(temp)
             types_stack.append(result_type)
 
@@ -799,12 +796,11 @@ def p_add_operator_3(p):
             try: 
                 result_type = semantic_cube[left_type][right_type][operator]
             except:
-                print("Type mismatch", left_operand, left_type, right_operand, right_type, operator)
-                return
+                raise Exception ("Type mismatch in addition")
             global current_function
             temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            cuadruplos.append(Cuadruplo(operator, left_operand, right_operand, temp))
             operand_stack.append(temp)
             types_stack.append(result_type)
 
@@ -828,12 +824,11 @@ def p_add_operator_4(p):
             try: 
                 result_type = semantic_cube[left_type][right_type][operator]
             except:
-                print("Type mismatch")
-                return
+                raise Exception ("Type mismatch in addition")
             global current_function
             temp = va.getTemporalAddress(current_function, result_type)
 
-            cuadruplos.append(Cuadruple(operator, left_operand, right_operand, temp))
+            cuadruplos.append(Cuadruplo(operator, left_operand, right_operand, temp))
             operand_stack.append(temp)
             types_stack.append(result_type)
 
@@ -951,7 +946,7 @@ def test_Parser():
       parser.parse(test)
       
   except EOFError:
-      print('s')
+      raise Exception ("Cannot test parser")
 
 if __name__ == '__main__':
         test_Parser()
