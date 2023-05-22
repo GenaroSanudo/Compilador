@@ -10,7 +10,7 @@ class Directory:
             'program' : {
                 'params' : [],
                 'vars' : {},
-                'typeOfR' : 0,
+                'typeOfR' : None,
                 'num_params' : 0,
                 'quad_counter' : 0,
                 'num_vars' : [],

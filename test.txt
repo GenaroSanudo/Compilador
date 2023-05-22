@@ -15,6 +15,7 @@ func void ino (float ballena, int foca){
         read (inof);
     };
 
+
 };
 
 

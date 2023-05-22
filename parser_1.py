@@ -293,6 +293,7 @@ def p_estatuto(p):
                 | if_1
                 | for_l
                 | while_l
+                | return
                 | func_extra
     '''
 
@@ -556,9 +557,6 @@ def p_for_point_4(p):
     types_stack.pop()
 
 
-
-
-
 def p_while_l(p):
     '''
     while_l : WHILE while_point LPAR exp RPAR while_point_2 L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON while_point_3
@@ -608,6 +606,20 @@ def p_while_point_3(p):
     ret = jump_stack.pop()
     cuadruplos.append(Cuadruplo(130,None, None, ret))
     cuadruplos = fillCuad(ret, len(cuadruplos), cuadruplos)
+
+def p_return(p):
+    '''
+    return : RETURN check_valid_func LPAR exp RPAR SEMICOLON
+    '''
+
+def p_check_valid_func(p):
+    '''
+    check_valid_func : empty
+    '''
+    global current_function, func_dir
+
+    if (func_dir.func_directory[current_function]['typeOfR'] == 0):
+        raise Exception ("Void functions cannot have return statement")
 
 def p_func_extra(p):
     '''
@@ -882,18 +894,26 @@ def p_add_constant_f(p):
     
 def p_function(p):
     '''
-    function : FUNC function_2 SEMICOLON function_3
+    function : FUNC function_2 SEMICOLON function_4
     '''
 
 def p_function_2(p):
     '''
-    function_2 : tipo_simple ID function_punto1 LPAR param punto_param_2 RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET final_func_point
-                    | VOID ID function_punto2 LPAR param punto_param_2 RPAR L_C_BRACKET body R_C_BRACKET final_func_point
+    function_2 : function_3 ID function_punto1 LPAR param punto_param_2 RPAR L_C_BRACKET body R_C_BRACKET final_func_point
     '''
 
 def p_function_3(p):
     '''
-    function_3 : function
+    function_3 : tipo_simple
+                    | VOID
+    '''
+    if (p[1] == 'void'):
+        global current_type
+        current_type = 'void'
+
+def p_function_4(p):
+    '''
+    function_4 : function
                     | empty
     '''
 
@@ -902,6 +922,7 @@ def p_function_punto1(p):
     function_punto1 : empty
     '''
     global current_type
+    print (p[-2])
     type = traduccion(current_type)
     func_dir.addFunction(p[-1], type)
     global current_function
@@ -968,11 +989,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        cont = 0
-        for element in cuadruplos:
-            print (cont)
-            cont = cont +1 
-            element.print()
+        # cont = 0
+        # for element in cuadruplos:
+        #     print (cont)
+        #     cont = cont +1 
+        #     element.print()
         # print(operator_stack, operand_stack, types_stack)
         func_dir.print()
         # print(constant_table)
