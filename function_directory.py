@@ -10,7 +10,11 @@ class Directory:
             'program' : {
                 'params' : [],
                 'vars' : {},
-                'typeOfR' : 0
+                'typeOfR' : 0,
+                'num_params' : 0,
+                'quad_counter' : 0,
+                'num_vars' : [],
+                'num_temp_vars' : []
             }
         }
 
@@ -19,21 +23,16 @@ class Directory:
             self.func_directory[name] = {
                 'typeOfR' : type,
                 'vars' : {},
-                'params' : []
+                'params' : [],
+                'num_params' : 0,
+                'quad_counter' : 0,
+                'num_vars' : [],
+                'num_temp_vars' : []
             }
             print ("Added func: ", type, name)
         else:
-            print("Function already exists")
+            raise Exception("Function " + str(name) + " already exists")
 
-    def addFunctionFull(self, name, type, par, variables ):
-        if (self.func_directory.get(name) == None):
-            self.func_directory[name] = {
-                'params' : par,
-                'vars' : variables,
-                'typeOfR' : type
-            }
-        else:
-            print("Function already exist")
     
     def addVariables(self, name, variables):
         if (self.func_directory.get(name) != None):
@@ -68,8 +67,33 @@ class Directory:
     def getAddress(self, current_function, var):
         dir = self.func_directory[current_function]['vars'][var]['virtual_dir']
         return dir
+    
+    def countVariables(self, function):
+        int_cont = 0
+        float_cont = 0
+        string_cont = 0
+        char_cont = 0
+        dataframe_cont = 0
+
+        for key, value in self.func_directory[function]['vars'].items():
+            if value['type'] == 1:
+                int_cont += 1
+            elif value['type'] == 2:
+                float_cont += 1
+            elif value['type'] == 4:
+                string_cont +=1
+            elif value['type'] == 5:
+                dataframe_cont +=1
+            else:
+                raise Exception("Invalid variable type in function: ", key)
+        self.func_directory[function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
+                
+    def setTempVars(self, function, vars):
+        try:
+            self.func_directory[function]['num_temp_vars'] = vars
+        except:
+            raise Exception("Error setting temp variables")
              
-            
     def print(self):
         print(self.func_directory)
 

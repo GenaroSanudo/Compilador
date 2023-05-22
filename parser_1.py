@@ -28,30 +28,16 @@ jump_stack = []
 
 func_dir = function_directory.Directory()
 
+# Counters para las direcciones temporales utilizadas
+temp_int_cont = 40000
+temp_float_cont = 42000
+temp_bool_cont = 44000
+temp_string_cont = 46000
+temp_dataf_cont = 48000
 
 
-# Direcciones virtuales
-# global_int = 0
-# global_float = 2000
-# global_string = 4000
 
-# global_temp_int = 6000
-# global_temp_float = 8000
-# global_temp_bool = 10000
-# global_temp_string = 12000
 
-# local_int = 14000
-# local_float = 16000
-# local_string = 18000
-
-# local_temp_int = 20000
-# local_temp_float = 22000
-# local_temp_bool = 24000
-# local_temp_string = 26000
-
-# constant_int = 28000
-# constant_float = 30000
-# constant_string = 32000
 
 constant_table = {}
 
@@ -83,6 +69,8 @@ def p_modules_point(p):
 
     func_dir.addVariables(current_function, var_list.copy())
     # func_dir.print()
+    func_dir.func_directory[current_function]['quad_counter'] = len(cuadruplos)
+    func_dir.countVariables(current_function)
     global_vars = var_list.copy()
     var_list.clear()
     
@@ -164,8 +152,6 @@ def p_vars_3(p):
     type = traduccion(current_type)
 
     temp = va.getAddress(current_function, type)
-    if (type == 5):
-        print(current_function, type)
 
     var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : temp}
 
@@ -228,7 +214,7 @@ def p_vars_8(p):
 
 def p_param(p):
     '''
-    param : tipo_simple ID punto_param param_2
+    param : tipo_simple ID punto_param param_2 
                 | empty
     '''
 
@@ -243,8 +229,21 @@ def p_punto_param(p):
     punto_param : empty
     '''
     global current_type
+    global var_list
     type = traduccion(current_type)
     func_dir.addParameter(current_function, type)
+    virtual_dir = va.getAddress(current_function, type)
+    var_list[p[-1]] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : virtual_dir}
+
+
+def p_punto_param_2(p):
+    '''
+    punto_param_2 : empty
+    '''
+    global current_function
+    global func_dir
+    func_dir.func_directory[current_function]['num_params'] = len(func_dir.func_directory[current_function]['params'])
+    
 
 def p_variable(p):
     '''
@@ -500,12 +499,8 @@ def p_for_point_3(p):
     '''
     for_point_3 : empty
     '''
-    global operand_stack
-    global types_stack
-    global jump_stack
-    global func_dir
-    global current_function
-    global v_control
+    global operand_stack, types_stack, jump_stack, func_dir, current_function, v_control, temp_int_cont
+
     
     exp_type = types_stack.pop()
 
@@ -514,6 +509,7 @@ def p_for_point_3(p):
     else:
         exp = operand_stack.pop()
         v_final = va.getTemporalAddress(current_function, 1)
+        # temp_int_cont += 1
         cuadruplos.append(Cuadruplo(60, exp, None, v_final))
         
         # if (constant_table.get("Tx") != None):
@@ -891,8 +887,8 @@ def p_function(p):
 
 def p_function_2(p):
     '''
-    function_2 : tipo_simple ID function_punto1 LPAR param RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET 
-                    | VOID ID function_punto2 LPAR param RPAR L_C_BRACKET body R_C_BRACKET
+    function_2 : tipo_simple ID function_punto1 LPAR param punto_param_2 RPAR L_C_BRACKET body RETURN LPAR exp RPAR SEMICOLON R_C_BRACKET final_func_point
+                    | VOID ID function_punto2 LPAR param punto_param_2 RPAR L_C_BRACKET body R_C_BRACKET final_func_point
     '''
 
 def p_function_3(p):
@@ -924,9 +920,31 @@ def p_func_agrega_v(p):
     func_agrega_v : empty
     '''
     global current_function
+    global cuadruplos
     func_dir.addVariables(current_function, var_list.copy())
-    # func_dir.print()
+    func_dir.func_directory[current_function]['quad_counter'] = len(cuadruplos)
+    func_dir.countVariables(current_function)
     var_list.clear()
+
+
+def p_final_func_point(p):
+    '''
+    final_func_point : empty
+    '''
+    global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont
+    global func_dir, current_function, cuadruplos
+
+    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_dataframe - temp_dataf_cont]
+    func_dir.setTempVars(current_function, temp_addresses)
+
+    temp_int_cont = va.local_temp_int
+    temp_float_cont = va.local_temp_float
+    temp_bool_cont = va.local_temp_bool
+    temp_dataf_cont = va.local_temp_dataframe
+
+    func_dir.func_directory[current_function]['vars'].clear()
+
+    cuadruplos.append(Cuadruplo(145, None, None, None))
 
 
 
@@ -955,7 +973,6 @@ if __name__ == '__main__':
             print (cont)
             cont = cont +1 
             element.print()
-        print(operator_stack, operand_stack, types_stack)
-        # func_dir.print()
-        # print(va.constant_float)
-        print(constant_table)
+        # print(operator_stack, operand_stack, types_stack)
+        func_dir.print()
+        # print(constant_table)

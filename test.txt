@@ -1,15 +1,22 @@
 program pato : 
 
+var int perro;
 
 
 func void ino (float ballena, int foca){
     var int inof;
+    var int pau[3];
+    var float gen[1][2];
+    var dataframe plqa;
+
+    ballena = 3.0;
     
     for (inof = 3 to 5){
         read (inof);
     };
 
 };
+
 
 main(){
 var float paco;
