@@ -926,7 +926,7 @@ def p_function_punto1(p):
     '''
     function_punto1 : empty
     '''
-    global current_type, return_flag
+    global current_type, return_flag, global_vars
     type = traduccion(current_type)
 
     if (type == 0):
@@ -935,6 +935,8 @@ def p_function_punto1(p):
         return_flag = 0
 
     func_dir.addFunction(p[-1], type)
+    if (type != 0):
+        global_vars[p[-1]] = {'type' : type, 'dim' : 1, 'size' : [1]}
     global current_function
     current_function = p[-1]
 
@@ -1000,9 +1002,10 @@ if __name__ == '__main__':
         #     cont = cont +1 
         #     element.print()
         # print(operator_stack, operand_stack, types_stack)
-        func_dir.print()
+        # func_dir.print()
         import json
         # print(func_dir.func_directory.json())
-        json_object = json.dumps(func_dir.func_directory, indent = 2) 
-        print(json_object)
+        # json_object = json.dumps(func_dir.func_directory, indent = 2) 
+        # print(json_object)
+        print(global_vars)
         # print(constant_table)
