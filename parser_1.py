@@ -11,6 +11,7 @@ global_vars = {}
 var_list = {}
 last_id = None
 current_type = None
+return_flag = 0
 
 # For loop
 v_control = None
@@ -34,9 +35,6 @@ temp_float_cont = 42000
 temp_bool_cont = 44000
 temp_string_cont = 46000
 temp_dataf_cont = 48000
-
-
-
 
 
 constant_table = {}
@@ -153,7 +151,7 @@ def p_vars_3(p):
 
     temp = va.getAddress(current_function, type)
 
-    var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : temp}
+    var_list[var_id] = {'type' : type, 'dim' : 1, 'size': 1, 'virtual_dir' : temp}
 
 def p_vars_4(p):
     '''
@@ -269,7 +267,7 @@ def p_variable_point(p):
         operand_stack.append(p[-2])
         types_stack.append(type)
     else:
-        print("Esta variable no esta declarada")
+        raise Exception("Esta variable no esta declarada")
 
 
 def p_variable_2(p):
@@ -288,6 +286,7 @@ def p_estatuto(p):
     '''
     estatuto : asigna
                 | llamada
+                | llamada_void
                 | read
                 | write
                 | if_1
@@ -336,6 +335,17 @@ def p_llamada(p):
 def p_llamada_2(p):
     '''
     llamada_2 : COMMA exp llamada_2 
+                | empty
+    '''
+
+def p_llamada_void(p):
+    '''
+    llamada_void : ID LPAR exp llamada_void_2 RPAR SEMICOLON
+    '''
+
+def p_llamada_void_2(p):
+    '''
+    llamada_void_2 : COMMA exp llamada_void_2 
                 | empty
     '''
 
@@ -463,10 +473,10 @@ def p_for_point_1(p):
     global func_dir
     global current_function
     
-    
+    print(p[-1])
     type = func_dir.getType(current_function, p[-1])
-    if ((type != 1) and (type != 2)):
-        raise Exception ("Type mismatch in for loop")
+    if ((type != 1)):
+        raise Exception ("Type mismatch in for loop, variable must be an integer")
     else:
         operand_stack.append(func_dir.getAddress(current_function, p[-1]))
         types_stack.append(type)
@@ -484,8 +494,8 @@ def p_for_point_2(p):
 
     exp_type = types_stack.pop()
 
-    if ((exp_type != 1) and (exp_type != 2)):
-        raise Exception ("Type mismatch in for loop")
+    if (exp_type != 1):
+        raise Exception ("Type mismatch in for loop, number must be an integer")
     else:
         exp = operand_stack.pop()
         v_control = operand_stack[-1]
@@ -513,13 +523,6 @@ def p_for_point_3(p):
         # temp_int_cont += 1
         cuadruplos.append(Cuadruplo(60, exp, None, v_final))
         
-        # if (constant_table.get("Tx") != None):
-        #     Tx = constant_table["Tx"]['virtual_dir']
-        # else:
-        #     constant_table["Tx"] = {'type' : 3, 'virtual_dir' : va.constant_bool}
-        #     Tx = va.constant_bool
-        #     va.constant_bool = va.constant_bool + 1
-
         Tx = va.local_temp_bool
         va.local_temp_bool = va.local_temp_bool + 1
 
@@ -616,10 +619,12 @@ def p_check_valid_func(p):
     '''
     check_valid_func : empty
     '''
-    global current_function, func_dir
+    global current_function, func_dir, return_flag
 
     if (func_dir.func_directory[current_function]['typeOfR'] == 0):
         raise Exception ("Void functions cannot have return statement")
+    else:
+        return_flag = 1
 
 def p_func_extra(p):
     '''
@@ -921,18 +926,15 @@ def p_function_punto1(p):
     '''
     function_punto1 : empty
     '''
-    global current_type
-    print (p[-2])
+    global current_type, return_flag
     type = traduccion(current_type)
-    func_dir.addFunction(p[-1], type)
-    global current_function
-    current_function = p[-1]
 
-def p_function_punto2(p):
-    '''
-    function_punto2 : empty
-    '''
-    func_dir.addFunction(p[-1], 0)
+    if (type == 0):
+        return_flag = 1
+    else:
+        return_flag = 0
+
+    func_dir.addFunction(p[-1], type)
     global current_function
     current_function = p[-1]
 
@@ -954,6 +956,9 @@ def p_final_func_point(p):
     '''
     global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont
     global func_dir, current_function, cuadruplos
+
+    if (return_flag == 0):
+        raise Exception("Function needs to have at least ONE return")
 
     temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_dataframe - temp_dataf_cont]
     func_dir.setTempVars(current_function, temp_addresses)
@@ -989,11 +994,15 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        # cont = 0
+        cont = 0
         # for element in cuadruplos:
         #     print (cont)
         #     cont = cont +1 
         #     element.print()
         # print(operator_stack, operand_stack, types_stack)
         func_dir.print()
+        import json
+        # print(func_dir.func_directory.json())
+        json_object = json.dumps(func_dir.func_directory, indent = 2) 
+        print(json_object)
         # print(constant_table)
