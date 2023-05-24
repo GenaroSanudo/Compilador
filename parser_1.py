@@ -36,6 +36,16 @@ temp_bool_cont = 44000
 temp_string_cont = 46000
 temp_dataf_cont = 48000
 
+local_int_cont = 30000
+local_float_cont = 32000
+local_string_cont = 34000
+local_dataframe_cont = 36000
+
+global_int_cont = 0
+global_float_cont = 2000
+global_string_cont = 4000
+global_dataframe_cont = 6000
+
 
 constant_table = {}
 
@@ -60,17 +70,30 @@ def p_modules_point(p):
     '''
     modules_point : empty
     '''
-    global func_dir
-    global var_list
-    global current_function
-    global global_vars
+    global func_dir, var_list, current_function, global_vars
+    global global_int_cont, global_float_cont, global_string_cont, global_dataframe_cont
+
 
     func_dir.addVariables(current_function, var_list.copy())
     # func_dir.print()
     func_dir.func_directory[current_function]['quad_counter'] = len(cuadruplos)
-    func_dir.countVariables(current_function)
+
+    int_cont = va.global_int - global_int_cont 
+    float_cont = va.global_float - global_float_cont
+    string_cont = va.global_string - global_string_cont
+    dataframe_cont =  va.global_dataframe - global_dataframe_cont
+
+    global_int_cont = va.global_int
+    global_float_cont = va.global_float
+    global_string_cont = va.global_string
+    global_dataframe_cont = va.global_dataframe
+
+    func_dir.func_directory[current_function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
+    func_dir.func_directory[current_function]['vars'].clear()
+    
     global_vars = var_list.copy()
     var_list.clear()
+    
     
 
 def p_modules_2(p):
@@ -87,7 +110,7 @@ def p_modules_3(p):
 
 def p_main(p):
     '''
-    main : MAIN main_point LPAR RPAR L_C_BRACKET body R_C_BRACKET SEMICOLON
+    main : MAIN main_point LPAR RPAR L_C_BRACKET body R_C_BRACKET SEMICOLON main_final
     '''
 
 def p_main_point(p):
@@ -97,6 +120,16 @@ def p_main_point(p):
     global current_function
     current_function = p[-1]
     func_dir.addFunction(p[-1], None)
+
+def p_main_final(p):
+    '''
+    main_final : empty
+    '''
+    global current_function, func_dir, cuadruplos
+
+    func_dir.func_directory[current_function]['vars'].clear()
+
+    cuadruplos.append(Cuadruplo(145, None, None, None))
 
 def p_body(p):
     '''
@@ -187,11 +220,9 @@ def p_var_array(p):
     '''
     var_array : empty
     '''
-    global var_list
-    global last_id
-    global current_type
+    global var_list, last_id, current_type, current_function
     type = traduccion(current_type)
-    var_list[last_id] = {'type' : type, 'dim' : 1, 'size': [p[-2]]}
+    var_list[last_id] = {'type' : type, 'dim' : 1, 'size': [p[-2]], 'virtual_dir' : va.getAddress(current_function, type, p[-2])}
 
 def p_var_mat(p):
     '''
@@ -201,7 +232,7 @@ def p_var_mat(p):
     global last_id
     global current_type
     type = traduccion(current_type)
-    var_list[last_id] = {'type' : type, 'dim' : 2, 'size': [p[-5],p[-2]]}
+    var_list[last_id] = {'type' : type, 'dim' : 2, 'size': [p[-5],p[-2]], 'virtual_dir' : va.getAddress(current_function, type, p[-2] * p[-5])}
     
 
 def p_vars_8(p):
@@ -515,7 +546,7 @@ def p_for_point_3(p):
     
     exp_type = types_stack.pop()
 
-    if ((exp_type != 1) and (exp_type != 2)):
+    if ((exp_type != 1)):
         raise Exception ("Type mismatch in for loop")
     else:
         exp = operand_stack.pop()
@@ -612,7 +643,7 @@ def p_while_point_3(p):
 
 def p_return(p):
     '''
-    return : RETURN check_valid_func LPAR exp RPAR SEMICOLON
+    return : RETURN LPAR exp check_valid_func RPAR SEMICOLON
     '''
 
 def p_check_valid_func(p):
@@ -620,11 +651,28 @@ def p_check_valid_func(p):
     check_valid_func : empty
     '''
     global current_function, func_dir, return_flag
+    global types_stack, operand_stack, cuadruplos
 
     if (func_dir.func_directory[current_function]['typeOfR'] == 0):
         raise Exception ("Void functions cannot have return statement")
+    
+    return_flag = 1
+
+    op_type = types_stack.pop()
+    op = operand_stack.pop()
+
+    func_type = func_dir.func_directory[current_function]['typeOfR']
+
+    if (func_type == op_type):
+        cuadruplos.append(Cuadruplo(110, None, None, op))
     else:
-        return_flag = 1
+        raise Exception("Ivalid return type")
+
+    
+
+
+
+
 
 def p_func_extra(p):
     '''
@@ -893,7 +941,7 @@ def p_add_constant_f(p):
         operand_stack.append(constant_table[str(p[-1])]['virtual_dir'])
     else:
         constant_table[str(p[-1])] = {'type' : 2, 'virtual_dir' : va.constant_float}
-        types_stack.append(1)
+        types_stack.append(2)
         operand_stack.append(va.constant_float)
         va.constant_float = va.constant_float + 1
     
@@ -944,11 +992,25 @@ def p_func_agrega_v(p):
     '''
     func_agrega_v : empty
     '''
-    global current_function
-    global cuadruplos
+    global current_function, cuadruplos
+    global local_int_cont, local_float_cont, local_string_cont, local_dataframe_cont
+
     func_dir.addVariables(current_function, var_list.copy())
     func_dir.func_directory[current_function]['quad_counter'] = len(cuadruplos)
-    func_dir.countVariables(current_function)
+    
+    int_cont = va.local_int - local_int_cont 
+    float_cont = va.local_float - local_float_cont
+    string_cont = va.local_string - local_string_cont
+    dataframe_cont =  va.local_dataframe - local_dataframe_cont
+
+    local_int_cont = va.local_int
+    local_float_cont = va.local_float
+    local_string_cont = va.local_string
+    local_dataframe_cont = va.local_dataframe
+
+    func_dir.func_directory[current_function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
+
+
     var_list.clear()
 
 
@@ -997,15 +1059,14 @@ def test_Parser():
 if __name__ == '__main__':
         test_Parser()
         cont = 0
-        # for element in cuadruplos:
-        #     print (cont)
-        #     cont = cont +1 
-        #     element.print()
-        # print(operator_stack, operand_stack, types_stack)
+        for element in cuadruplos:
+            print (cont)
+            cont = cont +1 
+            element.print()
+        print(operator_stack, operand_stack, types_stack)
         # func_dir.print()
-        import json
-        # print(func_dir.func_directory.json())
+        # import json
         # json_object = json.dumps(func_dir.func_directory, indent = 2) 
         # print(json_object)
-        print(global_vars)
+        # print(global_vars)
         # print(constant_table)

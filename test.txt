@@ -1,16 +1,15 @@
 program pato : 
 
-var int perro[10];
 
 
-func float ino (float ballena, int foca){
+func int ino (float ballena, int foca){
     var int inof;
-    var int pau[3];
-    var float gen[1][2];
+    var int pau[5];
+    var float gen[100][2];
     var dataframe plqa;
     var float papa;
 
-    inof = 3.0;
+    inof = 2;
     
     for (inof = 3 to 5){
         read (inof);
@@ -20,8 +19,10 @@ func float ino (float ballena, int foca){
 };
 
 
+
 main(){
 var float paco;
+var int fff[50][100];
 
 read (paco);
 };

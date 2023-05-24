@@ -57,6 +57,12 @@ class Directory:
         else:
             return False
     
+    def checkFunction(self, func):
+        if (self.func_directory.get(func) != None):
+            return True
+        else:
+            return False
+    
     def getType(self, func, var):
         return self.func_directory[func]['vars'][var]['type']
         
@@ -67,26 +73,6 @@ class Directory:
     def getAddress(self, current_function, var):
         dir = self.func_directory[current_function]['vars'][var]['virtual_dir']
         return dir
-    
-    def countVariables(self, function):
-        int_cont = 0
-        float_cont = 0
-        string_cont = 0
-        char_cont = 0
-        dataframe_cont = 0
-
-        for key, value in self.func_directory[function]['vars'].items():
-            if value['type'] == 1:
-                int_cont += 1
-            elif value['type'] == 2:
-                float_cont += 1
-            elif value['type'] == 4:
-                string_cont +=1
-            elif value['type'] == 5:
-                dataframe_cont +=1
-            else:
-                raise Exception("Invalid variable type in function: ", key)
-        self.func_directory[function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
                 
     def setTempVars(self, function, vars):
         try:
