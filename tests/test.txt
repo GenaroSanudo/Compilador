@@ -1,6 +1,21 @@
 program pato : 
 
 
+func void uno (){
+    var int f;
+
+    read (f);
+
+};
+
+func int bla (int p){
+    var int f;
+    
+    f = 5;
+
+    return (5);
+};
+
 
 func int ino (float ballena, int foca){
     var int inof;
@@ -15,7 +30,11 @@ func int ino (float ballena, int foca){
         read (inof);
     };
 
-    return (5);
+    if (3 > 2){
+        write("blable");
+    };
+
+    return (bla(5););
 };
 
 
@@ -25,4 +44,5 @@ var float paco;
 var int fff[50][100];
 
 read (paco);
+
 };

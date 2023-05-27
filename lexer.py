@@ -111,15 +111,15 @@ def t_error(t):
 
 lexer = lex.lex()
 
-test_file = open("./test.txt", "r")
-test = test_file.read()
-test_file.close()
+# test_file = open("./tests/test.txt", "r")
+# test = test_file.read()
+# test_file.close()
 
-lex.input(test)
+# lex.input(test)
 
-while True:
-    tok = lexer.token()
-    if not tok:
-        break
-    # print(tok)
+# while True:
+#     tok = lexer.token()
+#     if not tok:
+#         break
+#     # print(tok)
     

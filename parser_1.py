@@ -7,11 +7,13 @@ import virtual_adresses as va
 
 # Function directory
 current_function = None
+called_function = None
 global_vars = {}
 var_list = {}
 last_id = None
 current_type = None
 return_flag = 0
+k = None
 
 # For loop
 v_control = None
@@ -58,7 +60,9 @@ def p_program_point(p):
     '''
     program_point : empty
     '''
-    global current_function
+    global current_function, cuadruplos, jump_stack
+    cuadruplos.append(Cuadruplo(130, None, None, None))
+    jump_stack.append(len(cuadruplos)-1)
     current_function = p[-1]
 
 def p_modules(p):
@@ -117,7 +121,12 @@ def p_main_point(p):
     '''
     main_point : empty
     '''
-    global current_function
+    global current_function, cuadruplos, jump_stack
+
+    goto = jump_stack.pop()
+    print (goto)
+    cuadruplos = fillCuad(goto, len(cuadruplos), cuadruplos)
+
     current_function = p[-1]
     func_dir.addFunction(p[-1], None)
 
@@ -133,13 +142,18 @@ def p_main_final(p):
 
 def p_body(p):
     '''
-    body : vars func_agrega_v estatuto body_2
+    body : body_2 func_agrega_v estatuto body_3
     '''
-    
 
 def p_body_2(p):
     '''
-    body_2 : estatuto body_2
+    body_2 : vars
+                | empty
+    '''  
+    
+def p_body_3(p):
+    '''
+    body_3 : estatuto body_3
                 | empty
     '''
 
@@ -293,12 +307,12 @@ def p_variable_point(p):
         type = func_dir.getType(current_function, p[-2])
         operand_stack.append(func_dir.getAddress(current_function, p[-2]))
         types_stack.append(type)
-    elif(func_dir.checkVariable('program', p[-2])):
-        type = func_dir.getType('program', p[-2])
-        operand_stack.append(p[-2])
+    elif(global_vars.get(p[-2], False)):
+        type = global_vars[p[-2]]['type']
+        operand_stack.append(global_vars[p[-2]]['virtual_dir'])
         types_stack.append(type)
     else:
-        raise Exception("Esta variable no esta declarada")
+        raise Exception("Esta variable no esta declarada", p[-2])
 
 
 def p_variable_2(p):
@@ -360,25 +374,120 @@ def p_asigna_point(p):
 
 def p_llamada(p):
     '''
-    llamada : ID LPAR exp llamada_2 RPAR SEMICOLON
+    llamada : ID verify_func not_void LPAR llamada_2 llamada_3 RPAR SEMICOLON gosub add_temp
     '''
 
 def p_llamada_2(p):
     '''
-    llamada_2 : COMMA exp llamada_2 
+    llamada_2 : exp verify_parameter
+                | empty
+    '''
+
+def p_llamada_3(p):
+    '''
+    llamada_3 : COMMA exp verify_parameter llamada_3
                 | empty
     '''
 
 def p_llamada_void(p):
     '''
-    llamada_void : ID LPAR exp llamada_void_2 RPAR SEMICOLON
+    llamada_void : ID verify_func LPAR llamada_void_2  llamada_void_3 RPAR SEMICOLON gosub
     '''
 
 def p_llamada_void_2(p):
     '''
-    llamada_void_2 : COMMA exp llamada_void_2 
+    llamada_void_2 : exp verify_parameter
                 | empty
     '''
+
+def p_llamada_void_3(p):
+    '''
+    llamada_void_3 : COMMA exp verify_parameter llamada_void_3
+                | empty
+    '''
+
+def p_not_void(p):
+    '''
+    not_void : empty
+    '''
+    global func_dir
+
+    if (func_dir.func_directory[p[-2]]['typeOfR'] == 0):
+        raise Exception (" Void functions cannot be called in return statement")
+    
+
+
+def p_verify_func(p):
+    '''
+    verify_func : empty
+    '''
+    global func_dir, called_function
+
+    called_function = p[-1]
+
+    if (func_dir.checkFunction(called_function) != True):
+        raise Exception ("Called function does not exist")
+    
+    global cuadruplos, k
+
+    cuadruplos.append(Cuadruplo(150, None, None, called_function))
+
+    k = 1
+    
+
+def p_verify_parameter(p):
+    '''
+    verify_parameter : empty
+    '''
+    global func_dir, operand_stack, types_stack, called_function, k, cuadruplos
+
+    argument = operand_stack.pop()
+    argument_type = types_stack.pop()
+
+    print(argument, argument_type)
+
+    arg_types = func_dir.func_directory[called_function]['params']
+    
+    try:
+        arg_type = arg_types[k-1]
+    except:
+        raise Exception ("Invalid number of parameters")
+    
+    if (arg_type != argument_type):
+        raise Exception ("Parameter type does not match the specified")
+    
+
+    cuadruplos.append(Cuadruplo(155, argument, None, "param" + str(k)))
+
+    
+    k = k + 1
+
+def p_gosub(p):
+    '''
+    gosub : empty
+    '''
+    global called_function, cuadruplos, func_dir, k
+
+    if (k-1 != len(func_dir.getParameters(called_function))):
+        raise Exception("Number of parameters do not match with function declaration")
+
+    cuadruplos.append(Cuadruplo(160, called_function, None, None))
+
+def p_add_temp(p):
+    '''
+    add_temp : empty
+    '''
+    global called_function, func_dir, cuadruplos, global_vars, types_stack, operand_stack
+
+    typeOfR = func_dir.func_directory[called_function]['typeOfR']
+    global_address = global_vars[called_function]['virtual_dir']
+
+    temp_dir = va.getTemporalAddress(called_function, typeOfR)
+
+    cuadruplos.append(Cuadruplo(60, global_address, None, temp_dir))
+
+    operand_stack.append(temp_dir)
+    types_stack.append(typeOfR)
 
 def p_read(p):
     '''
@@ -504,7 +613,6 @@ def p_for_point_1(p):
     global func_dir
     global current_function
     
-    print(p[-1])
     type = func_dir.getType(current_function, p[-1])
     if ((type != 1)):
         raise Exception ("Type mismatch in for loop, variable must be an integer")
@@ -628,7 +736,6 @@ def p_while_point_2(p):
         cuadruplos.append(Cuadruplo(135, result, None, None))
         jump_stack.append(len(cuadruplos)-1)
 
-    jump_stack.append(len(cuadruplos))
 
 def p_while_point_3(p):
     '''
@@ -639,7 +746,7 @@ def p_while_point_3(p):
     end = jump_stack.pop()
     ret = jump_stack.pop()
     cuadruplos.append(Cuadruplo(130,None, None, ret))
-    cuadruplos = fillCuad(ret, len(cuadruplos), cuadruplos)
+    cuadruplos = fillCuad(end, len(cuadruplos), cuadruplos)
 
 def p_return(p):
     '''
@@ -984,7 +1091,8 @@ def p_function_punto1(p):
 
     func_dir.addFunction(p[-1], type)
     if (type != 0):
-        global_vars[p[-1]] = {'type' : type, 'dim' : 1, 'size' : [1]}
+        global_dir = va.getAddress('program', type)
+        global_vars[p[-1]] = {'type' : type, 'dim' : 1, 'virtual_dir' : global_dir}
     global current_function
     current_function = p[-1]
 
@@ -1047,7 +1155,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./test.txt", "r")
+      test_file = open("./tests/recursion.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1063,10 +1171,10 @@ if __name__ == '__main__':
             print (cont)
             cont = cont +1 
             element.print()
-        print(operator_stack, operand_stack, types_stack)
+        print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json
         # json_object = json.dumps(func_dir.func_directory, indent = 2) 
         # print(json_object)
-        # print(global_vars)
+        print(global_vars)
         # print(constant_table)

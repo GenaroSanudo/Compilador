@@ -31,7 +31,9 @@
     # 135 : GOTOF
     # 140 : GOTOV
     # 145 ENDFUNC
-    # 150 
+    # 150 ERA
+    # 155 PARAMETER
+    # 160 GOSUB
 }
 # }
 
