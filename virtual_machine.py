@@ -385,7 +385,357 @@ class VirtualMachine:
             else:
                 self.global_memory.setValue(type, result, dir, temp)
 
+    def less_than(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value < r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def less_equal(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value <= r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def is_equal(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value == r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def greater_than(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value > r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
     
+    def greater_equal(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value >= r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def not_equal(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value != r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def and_func(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value and r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    def or_func(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value or r_value
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
 
     def asigna(self, l_operand, target):
 
@@ -443,22 +793,67 @@ class VirtualMachine:
             elif (op == 25):
                 self.divide(l_operand, r_operand, target)
             elif (op == 30):
-                pass
+                self.less_than(l_operand, r_operand, target)
             elif (op == 35):
-                pass
+                self.less_equal(l_operand, r_operand, target)
             elif (op == 40):
-                pass
+                self.is_equal(l_operand, r_operand, target)
             elif (op == 45):
-                pass
+                self.greater_than(l_operand, r_operand, target)
             elif (op == 50):
-                pass
+                self.greater_equal(l_operand, r_operand, target)
             elif (op == 55):
-                pass
+                self.not_equal(l_operand, r_operand, target)
             elif (op == 60):
                 self.asigna(l_operand, target)
+            elif (op == 65):
+                self.and_func(l_operand, r_operand, target)
+            elif (op == 70):
+                self.or_func(l_operand, r_operand, target)
+            elif (op == 100):
+                pass
             elif (op == 105):
                 self.write(target) 
+            elif (op == 110):
+                pass
+            elif (op == 130):
+                #GOTO
+                ip = target
+                continue
+            elif (op == 135):
+                temp, local, type, dir, constant = self.checkDir(l_operand)
+
+                if (local):
+                    value = self.execution_queue[-1].getValue(type, dir, temp)
+                else:
+                    value = self.global_memory.getValue(type, dir, temp)
+                
+                if (value == False):
+                    ip = target
+                    continue
+            elif (op == 140):
+                temp, local, type, dir, constant = self.checkDir(l_operand)
+
+                if (local):
+                    value = self.execution_queue[-1].getValue(type, dir, temp)
+                else:
+                    value = self.global_memory.getValue(type, dir, temp)
+                
+                if (value):
+                    ip = target
+                    continue
+            elif (op == 145):
+                self.execution_queue.pop()
+            elif (op == 150):
+                pass
+            elif (op == 155):
+                pass
+            elif (op == 160):
+                pass
+            
             ip += 1
+            # print(ip)
+            
 
 
 

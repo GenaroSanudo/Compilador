@@ -1,0 +1,29 @@
+program pato : 
+
+
+main(){
+var int b, c;
+var int a;
+
+b = 2;
+c = 3;
+
+for (a = 2 to 4){
+    write (a);
+};
+
+write(a);
+
+
+if (5 < 3){
+    write (a);
+}else {
+    write (b);
+};
+
+while (a < 5){
+    write(a);
+    a = a + 1;
+};
+
+};

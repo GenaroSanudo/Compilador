@@ -672,10 +672,10 @@ def p_for_point_3(p):
         Tx = va.local_temp_bool
         va.local_temp_bool = va.local_temp_bool + 1
 
-        cuadruplos.append(Cuadruplo(30, v_control, v_final, Tx ))
+        cuadruplos.append(Cuadruplo(30, v_control, v_final, Tx))
 
         jump_stack.append(len(cuadruplos) - 1)
-        cuadruplos.append(Cuadruplo(130, Tx, None, None))
+        cuadruplos.append(Cuadruplo(135, Tx, None, None))
         jump_stack.append(len(cuadruplos) - 1)
 
 def p_for_point_4(p):
@@ -687,20 +687,28 @@ def p_for_point_4(p):
     global operand_stack
     global jump_stack
     global types_stack
+    global current_function
 
-    Ty = va.local_temp_int
+    Ty = va.getTemporalAddress(current_function, 1)
     # constant_table["Ty"] = {'type' : 1, 'virtual_dir' : va.constant_int}
-    va.local_temp_int = va.local_temp_int + 1
+    # va.local_temp_int = va.local_temp_int + 1
 
-    cuadruplos.append(Cuadruplo(10, v_control, 1, Ty))
+    if (constant_table.get(str(1)) != None):
+        address = constant_table[str(p[-1])]['virtual_dir']
+    else:
+        constant_table[str(1)] = {'type' : 1, 'virtual_dir' : va.constant_int}
+        address = va.constant_int
+        va.constant_int = va.constant_int + 1
+
+    cuadruplos.append(Cuadruplo(10, v_control, address, Ty))
     cuadruplos.append(Cuadruplo(60, Ty, None, v_control))
     cuadruplos.append(Cuadruplo(60, Ty, None, operand_stack[-1]))
 
     Fin = jump_stack.pop()
     Ret = jump_stack.pop()
 
-    cuadruplos.append(Cuadruplo(130,None, None, Fin))
-    cuadruplos = fillCuad(Ret, len(cuadruplos), cuadruplos)
+    cuadruplos.append(Cuadruplo(130,None, None, Ret))
+    cuadruplos = fillCuad(Fin, len(cuadruplos), cuadruplos)
 
     operand_stack.pop()
     types_stack.pop()
@@ -1162,7 +1170,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/divide.txt", "r")
+      test_file = open("./tests/conditionals.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")

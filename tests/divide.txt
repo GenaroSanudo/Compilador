@@ -9,9 +9,10 @@ a = 1;
 b = 2;
 c = 3;
 
-write (a / a);
-write(a / b);
-write (a / 5);
+write ((a == a) && (b!=a));
+write ((a != a) || (b==a));
+write(b != a);
+write (a >= a);
 
 write (b / b);
 write (b / a);
