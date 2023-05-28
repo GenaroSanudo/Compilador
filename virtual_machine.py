@@ -845,7 +845,8 @@ class VirtualMachine:
             elif (op == 145):
                 self.execution_queue.pop()
             elif (op == 150):
-                pass
+                func = target
+                print(target)
             elif (op == 155):
                 pass
             elif (op == 160):

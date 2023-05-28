@@ -1170,7 +1170,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/conditionals.txt", "r")
+      test_file = open("./tests/recursion.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1181,11 +1181,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        # cont = 0
-        # for element in cuadruplos:
-        #     print (cont)
-        #     cont = cont +1 
-        #     element.print()
+        cont = 0
+        for element in cuadruplos:
+            print (cont)
+            cont = cont +1 
+            element.print()
         # print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json
