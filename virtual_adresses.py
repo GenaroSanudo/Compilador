@@ -23,8 +23,7 @@ local_temp_dataframe = 48000
 
 constant_int = 50000
 constant_float = 52000
-constant_bool = 54000
-constant_string = 56000
+constant_string = 54000
 
 
 def getAddress(current_function, type, size = 1):

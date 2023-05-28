@@ -135,6 +135,15 @@ def p_main_final(p):
     main_final : empty
     '''
     global current_function, func_dir, cuadruplos
+    global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont, temp_string_cont
+
+    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
+    func_dir.setTempVars(current_function, temp_addresses)
+
+    va.local_temp_int = temp_int_cont
+    va.local_temp_float = temp_float_cont
+    va.local_temp_bool = temp_bool_cont
+    va.local_temp_dataframe = temp_dataf_cont
 
     func_dir.func_directory[current_function]['vars'].clear()
 
