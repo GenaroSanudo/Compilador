@@ -1,11 +1,7 @@
 program pato : 
 
 var int a,b;
-var int c[100];
-var int d;
 var float f;
-
-var int a[10];
 
 
 func void uno(int a){
@@ -37,7 +33,6 @@ main(){
 var int g;
 
 g = 1;
-
 a = 3;
 
 b = a + 1;

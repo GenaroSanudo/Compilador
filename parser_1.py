@@ -68,7 +68,7 @@ def p_program_point(p):
 
 def p_modules(p):
     '''
-    modules : modules_2 modules_point modules_3
+    modules : modules_2 modules_point modules_3 count_global_vars
     '''
 
 def p_modules_point(p):
@@ -76,12 +76,20 @@ def p_modules_point(p):
     modules_point : empty
     '''
     global func_dir, var_list, current_function, global_vars
-    global global_int_cont, global_float_cont, global_string_cont, global_dataframe_cont
-
-
+    
     func_dir.addVariables(current_function, var_list.copy())
     # func_dir.print()
     func_dir.func_directory[current_function]['quad_counter'] = len(cuadruplos)
+
+    global_vars = var_list.copy()
+    var_list.clear()
+
+def p_count_global_vars(p):
+    '''
+    count_global_vars : empty
+    '''
+    global func_dir, var_list, current_function, global_vars
+    global global_int_cont, global_float_cont, global_string_cont, global_dataframe_cont
 
     int_cont = va.global_int - global_int_cont 
     float_cont = va.global_float - global_float_cont
@@ -93,12 +101,8 @@ def p_modules_point(p):
     global_string_cont = va.global_string
     global_dataframe_cont = va.global_dataframe
 
-    func_dir.func_directory[current_function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
-    func_dir.func_directory[current_function]['vars'].clear()
-    
-    global_vars = var_list.copy()
-    var_list.clear()
-    
+    func_dir.func_directory['program']['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
+    func_dir.func_directory['program']['vars'].clear()
     
 
 def p_modules_2(p):
@@ -400,7 +404,7 @@ def p_llamada_3(p):
 
 def p_llamada_void(p):
     '''
-    llamada_void : ID verify_func LPAR add_floor llamada_void_2 llamada_void_3 RPAR remove_floor SEMICOLON gosub
+    llamada_void : ID verify_func LPAR add_floor llamada_void_2 llamada_void_3 RPAR remove_floor SEMICOLON gosub 
     '''
 
 def p_llamada_void_2(p):
@@ -464,7 +468,7 @@ def p_verify_parameter(p):
         raise Exception ("Parameter type does not match the specified")
     
 
-    cuadruplos.append(Cuadruplo(155, argument, None, "param" + str(k)))
+    cuadruplos.append(Cuadruplo(155, argument, k-1, "param" + str(k)))
 
     
     k = k + 1
@@ -772,7 +776,7 @@ def p_check_valid_func(p):
     '''
     check_valid_func : empty
     '''
-    global current_function, func_dir, return_flag
+    global current_function, func_dir, return_flag, global_vars
     global types_stack, operand_stack, cuadruplos
 
     if (func_dir.func_directory[current_function]['typeOfR'] == 0):
@@ -783,10 +787,13 @@ def p_check_valid_func(p):
     op_type = types_stack.pop()
     op = operand_stack.pop()
 
+    
     func_type = func_dir.func_directory[current_function]['typeOfR']
+    dir = global_vars[current_function]['virtual_dir']
+
 
     if (func_type == op_type):
-        cuadruplos.append(Cuadruplo(110, None, None, op))
+        cuadruplos.append(Cuadruplo(110, dir, None, op))
     else:
         raise Exception("Ivalid return type")
 
@@ -1170,7 +1177,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/recursion.txt", "r")
+      test_file = open("./tests/simple_func.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1181,11 +1188,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        cont = 0
-        for element in cuadruplos:
-            print (cont)
-            cont = cont +1 
-            element.print()
+        # cont = 0
+        # for element in cuadruplos:
+        #     print (cont)
+        #     cont = cont +1 
+        #     element.print()
         # print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json

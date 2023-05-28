@@ -1,0 +1,18 @@
+program pato : 
+
+var int a,b;
+var float f;
+
+
+func int uno(int a){
+    write (50);
+    return (a * 2);
+};
+
+
+
+main(){
+
+write(uno (357););
+
+};

@@ -4,7 +4,7 @@ from function_directory import Directory
 
 class Memory:
 
-    def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size) -> None:
+    def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size, params = None) -> None:
         
         self.local_int = [None] * int_size
         self.local_float = [None] * float_size
@@ -16,6 +16,10 @@ class Memory:
         self.temp_bool = [None] * t_bool_size
         self.temp_string = [None] * t_string_size
         self.temp_dataF = [None] * t_dataF_size
+
+        self.params = params
+        self.param_int = 0
+        self.param_float = 0
 
     def setValue(self, type, value, dir, temp = False):
 
@@ -64,6 +68,16 @@ class Memory:
                 return  self.local_dataF[dir]
         return None
 
+    def addParam(self, k, value):
+
+        type = self.params[k]
+
+        if (type == 1):
+            self.setValue(1, value, self.param_int)
+            self.param_int += 1
+        elif(type == 2):
+            self.setValue(2, value, self.param_float)
+            self.param_float += 1
 
 
 class VirtualMachine:
@@ -121,8 +135,11 @@ class VirtualMachine:
 
         self.constants = newTable
 
-    def createFunction(self):
-        pass
+    def createFunction(self, target):
+        func_memory = self.func_dir.func_directory[target]['num_vars']
+        func_temp_memory = self.func_dir.func_directory[target]['num_temp_vars']
+        params = self.func_dir.func_directory[target]['params']
+        return(Memory(func_memory[0], func_memory[1], func_memory[2], func_memory[3], func_temp_memory[0], func_temp_memory[1], func_temp_memory[2], func_temp_memory[3], func_temp_memory[4], params))
 
     def checkDir(self, dir):
         
@@ -777,12 +794,16 @@ class VirtualMachine:
 
     def readQuad(self):
         ip = 0
+        ip_list = []
+
 
         while (ip < len(self.cuadruplos)):
             op = self.cuadruplos[ip].operator
             l_operand = self.cuadruplos[ip].l_operand
             r_operand = self.cuadruplos[ip].r_operand
             target = self.cuadruplos[ip].target
+
+            # print(ip)
 
             if (op == 10):
                 self.suma(l_operand, r_operand, target)
@@ -815,7 +836,15 @@ class VirtualMachine:
             elif (op == 105):
                 self.write(target) 
             elif (op == 110):
-                pass
+                temp, local, type, dir, constant = self.checkDir(target)
+                value = self.execution_queue[-1].getValue(type, dir, temp)
+
+                temp, local, type, dir, constant = self.checkDir(l_operand)
+                self.global_memory.setValue(type, value, dir, temp)
+
+                self.execution_queue.pop()
+                ip = ip_list.pop()
+                continue
             elif (op == 130):
                 #GOTO
                 ip = target
@@ -843,17 +872,35 @@ class VirtualMachine:
                     ip = target
                     continue
             elif (op == 145):
+                if (len(self.execution_queue) > 1):
+                    ip = ip_list.pop()
+                elif(len(self.execution_queue) == 0):
+                    ip += 1
+                    break
                 self.execution_queue.pop()
+                continue
             elif (op == 150):
-                func = target
-                print(target)
+                nextFunctionMem = self.createFunction(target)
             elif (op == 155):
-                pass
+                temp, local, type, dir, constant = self.checkDir(l_operand)
+                if (constant):
+                    value = self.constants[dir]['value']
+                elif (local):
+                    value = self.execution_queue[-1].getValue(type, dir, temp)
+                else:
+                    value = self.global_memory.getValue(type, dir, temp)
+                
+                nextFunctionMem.addParam(r_operand, value)
             elif (op == 160):
-                pass
+                self.execution_queue.append(nextFunctionMem)
+                quad = self.func_dir.func_directory[l_operand]['quad_counter']
+                ip_list.append(ip + 1)
+                ip = quad
+                continue
+                
             
             ip += 1
-            # print(ip)
+            
             
 
 
