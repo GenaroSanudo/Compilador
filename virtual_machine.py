@@ -250,6 +250,143 @@ class VirtualMachine:
         else:
             self.global_memory.setValue(type, result, dir, temp)
 
+    def resta(self, l_operand, r_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        if (l_constant and r_constant):
+            # ambas constantes
+            l_value = self.constants[l_dir]['value']
+            r_value = self.constants[r_dir]['value']
+        
+        elif (l_constant):
+
+            l_value = self.constants[l_dir]['value']
+
+            if (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+        
+        elif (l_local):
+            l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+            if (r_constant):
+                r_value = self.constants[r_dir]['value']
+            elif (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+        else:
+            l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+            if (r_constant):
+                r_value = self.constants[r_dir]['value']
+            elif (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+        result = l_value - r_value
+
+        if (local):
+            self.execution_queue[-1].setValue(type, result, dir, temp)
+        else:
+            self.global_memory.setValue(type, result, dir, temp)
+
+    def mult(self, l_operand, r_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        if (l_constant and r_constant):
+            # ambas constantes
+            l_value = self.constants[l_dir]['value']
+            r_value = self.constants[r_dir]['value']
+        
+        elif (l_constant):
+
+            l_value = self.constants[l_dir]['value']
+
+            if (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+        
+        elif (l_local):
+            l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+            if (r_constant):
+                r_value = self.constants[r_dir]['value']
+            elif (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+        else:
+            l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+            if (r_constant):
+                r_value = self.constants[r_dir]['value']
+            elif (r_local):
+                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+            else:
+                r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+        result = l_value * r_value
+
+        if (local):
+            self.execution_queue[-1].setValue(type, result, dir, temp)
+        else:
+            self.global_memory.setValue(type, result, dir, temp)
+
+    def divide(self, l_operand, r_operand, target):
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+            r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
+            temp, local, type, dir, constant = self.checkDir(target)
+
+            if (l_constant and r_constant):
+                # ambas constantes
+                l_value = self.constants[l_dir]['value']
+                r_value = self.constants[r_dir]['value']
+            
+            elif (l_constant):
+
+                l_value = self.constants[l_dir]['value']
+
+                if (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            
+            elif (l_local):
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+            else:
+                l_value = self.global_memory.getValue(l_type, l_dir, l_temp)
+                if (r_constant):
+                    r_value = self.constants[r_dir]['value']
+                elif (r_local):
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                else:
+                    r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
+
+            result = l_value / r_value
+
+            if (type == 1):
+                result = round(result)
+
+            if (local):
+                self.execution_queue[-1].setValue(type, result, dir, temp)
+            else:
+                self.global_memory.setValue(type, result, dir, temp)
+
+    
+
     def asigna(self, l_operand, target):
 
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
@@ -300,11 +437,11 @@ class VirtualMachine:
             if (op == 10):
                 self.suma(l_operand, r_operand, target)
             elif (op == 15):
-                pass
+                self.resta(l_operand, r_operand, target)
             elif (op == 20):
-                pass
+                self.mult(l_operand, r_operand, target)
             elif (op == 25):
-                pass
+                self.divide(l_operand, r_operand, target)
             elif (op == 30):
                 pass
             elif (op == 35):

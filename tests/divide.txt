@@ -1,0 +1,36 @@
+program pato : 
+
+var float a;
+
+main(){
+var int b, c;
+
+a = 1;
+b = 2;
+c = 3;
+
+write (a / a);
+write(a / b);
+write (a / 5);
+
+write (b / b);
+write (b / a);
+write (b / 5);
+
+write (5 / 5);
+write (5 / a);
+write (5 / b);
+
+a = b;
+
+write (a);
+
+a = 1;
+
+write (a);
+
+a = c;
+
+write(a);
+
+};

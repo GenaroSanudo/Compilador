@@ -1162,7 +1162,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/suma.txt", "r")
+      test_file = open("./tests/divide.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1173,18 +1173,18 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        cont = 0
-        for element in cuadruplos:
-            print (cont)
-            cont = cont +1 
-            element.print()
-        print(operator_stack, operand_stack, types_stack, jump_stack)
-        func_dir.print()
-        import json
-        json_object = json.dumps(func_dir.func_directory, indent = 2) 
-        print(json_object)
-        print(global_vars)
-        print(constant_table)
+        # cont = 0
+        # for element in cuadruplos:
+        #     print (cont)
+        #     cont = cont +1 
+        #     element.print()
+        # print(operator_stack, operand_stack, types_stack, jump_stack)
+        # func_dir.print()
+        # import json
+        # json_object = json.dumps(func_dir.func_directory, indent = 2) 
+        # print(json_object)
+        # print(global_vars)
+        # print(constant_table)
 
         with open('func_dir.pickle', 'wb') as handle:
             pickle.dump(func_dir, handle, protocol=pickle.HIGHEST_PROTOCOL)
