@@ -65,3 +65,69 @@ class Memory:
         elif (type == 5):
             return self.temp_dataF[dir]
 
+
+
+class VirtualMachine:
+
+    def __init__(self, func_dir, global_vars, constants, cuadruplos) -> None:
+        
+        self.global_vars = global_vars # CAMBIAR ESTO
+        self.func_dir = func_dir
+        self.cuadruplos = cuadruplos
+        self.constants = constants
+        self.execution_queue = []
+
+    def initialize_vm(self):
+
+        # Adds global virtual memory
+        g_memory = self.func_dir.func_directory['program']['num_vars']
+        g_temp_memory = self.func_dir.func_directory['program']['num_temp_vars']
+        self.global_memory = Memory(g_memory[0], g_memory[1], g_memory[2], g_memory[3], g_temp_memory[0], g_temp_memory[1], g_temp_memory[2], g_temp_memory[3], g_temp_memory[4])
+        
+        # Adds global variables
+        # for var, element in self.global_vars.items():
+        #     type = element['type']
+        #     dir = element['virtual_dir']
+
+        #     print(type, dir)
+
+        #     if (type == 1):
+        #         self.global_memory.setValue(type, )
+
+        # Adds memory for main and appends to execution queue
+        main_memory = self.func_dir.func_directory['main']['num_vars']
+        main_temp_memory = self.func_dir.func_directory['main']['num_temp_vars']
+        self.execution_queue.append(Memory(main_memory[0], main_memory[1], main_memory[2], main_memory[3], main_temp_memory[0], main_temp_memory[1], main_temp_memory[2], main_temp_memory[3], main_temp_memory[4]))
+
+
+    def createFunction(self):
+        pass
+
+    def checkDir(self, dir):
+        pass
+
+    
+    def readQuad(self):
+        pass
+
+
+
+
+with open('func_dir.pickle', 'rb') as handle:
+    func_dir = pickle.load(handle)
+
+with open('constants.pickle', 'rb') as handle:
+    constant_table = pickle.load(handle)
+
+with open('global_vars.pickle', 'rb') as handle:
+    global_vars = pickle.load(handle)
+
+with open('cuadruplos.pickle', 'rb') as handle:
+    cuad = pickle.load(handle)
+
+
+vm = VirtualMachine(func_dir, global_vars, constant_table, cuad)
+
+vm.initialize_vm()
+
+vm.readQuad()
