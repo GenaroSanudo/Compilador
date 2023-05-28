@@ -4,6 +4,7 @@ from cubo import semantic_cube, traduccion
 import function_directory
 from cuadruplo import Cuadruplo, fillCuad
 import virtual_adresses as va
+import pickle
 
 # Function directory
 current_function = None
@@ -124,7 +125,6 @@ def p_main_point(p):
     global current_function, cuadruplos, jump_stack
 
     goto = jump_stack.pop()
-    print (goto)
     cuadruplos = fillCuad(goto, len(cuadruplos), cuadruplos)
 
     current_function = p[-1]
@@ -276,7 +276,7 @@ def p_punto_param(p):
     type = traduccion(current_type)
     func_dir.addParameter(current_function, type)
     virtual_dir = va.getAddress(current_function, type)
-    var_list[p[-1]] = {'type' : type, 'dim' : 0, 'size': 0, 'virtual_dir' : virtual_dir}
+    var_list[p[-1]] = {'type' : type, 'dim' : 1, 'size': 1, 'virtual_dir' : virtual_dir}
 
 
 def p_punto_param_2(p):
@@ -374,7 +374,7 @@ def p_asigna_point(p):
 
 def p_llamada(p):
     '''
-    llamada : ID verify_func not_void LPAR llamada_2 llamada_3 RPAR SEMICOLON gosub add_temp
+    llamada : ID verify_func not_void LPAR add_floor llamada_2 llamada_3 RPAR remove_floor SEMICOLON gosub add_temp
     '''
 
 def p_llamada_2(p):
@@ -391,7 +391,7 @@ def p_llamada_3(p):
 
 def p_llamada_void(p):
     '''
-    llamada_void : ID verify_func LPAR llamada_void_2  llamada_void_3 RPAR SEMICOLON gosub
+    llamada_void : ID verify_func LPAR add_floor llamada_void_2 llamada_void_3 RPAR remove_floor SEMICOLON gosub
     '''
 
 def p_llamada_void_2(p):
@@ -443,8 +443,6 @@ def p_verify_parameter(p):
 
     argument = operand_stack.pop()
     argument_type = types_stack.pop()
-
-    print(argument, argument_type)
 
     arg_types = func_dir.func_directory[called_function]['params']
     
@@ -1111,10 +1109,10 @@ def p_func_agrega_v(p):
     string_cont = va.local_string - local_string_cont
     dataframe_cont =  va.local_dataframe - local_dataframe_cont
 
-    local_int_cont = va.local_int
-    local_float_cont = va.local_float
-    local_string_cont = va.local_string
-    local_dataframe_cont = va.local_dataframe
+    va.local_int = local_int_cont
+    va.local_float = local_float_cont
+    va.local_string = local_string_cont
+    va.local_dataframe = local_dataframe_cont
 
     func_dir.func_directory[current_function]['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
 
@@ -1126,19 +1124,19 @@ def p_final_func_point(p):
     '''
     final_func_point : empty
     '''
-    global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont
+    global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont, temp_string_cont
     global func_dir, current_function, cuadruplos
 
     if (return_flag == 0):
         raise Exception("Function needs to have at least ONE return")
 
-    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_dataframe - temp_dataf_cont]
+    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
     func_dir.setTempVars(current_function, temp_addresses)
 
-    temp_int_cont = va.local_temp_int
-    temp_float_cont = va.local_temp_float
-    temp_bool_cont = va.local_temp_bool
-    temp_dataf_cont = va.local_temp_dataframe
+    va.local_temp_int = temp_int_cont
+    va.local_temp_float = temp_float_cont
+    va.local_temp_bool = temp_bool_cont
+    va.local_temp_dataframe = temp_dataf_cont
 
     func_dir.func_directory[current_function]['vars'].clear()
 
@@ -1155,7 +1153,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/recursion.txt", "r")
+      test_file = open("./tests/suma.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1172,9 +1170,21 @@ if __name__ == '__main__':
             cont = cont +1 
             element.print()
         print(operator_stack, operand_stack, types_stack, jump_stack)
-        # func_dir.print()
-        # import json
-        # json_object = json.dumps(func_dir.func_directory, indent = 2) 
-        # print(json_object)
+        func_dir.print()
+        import json
+        json_object = json.dumps(func_dir.func_directory, indent = 2) 
+        print(json_object)
         print(global_vars)
-        # print(constant_table)
+        print(constant_table)
+
+        with open('func_dir.pickle', 'wb') as handle:
+            pickle.dump(func_dir, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        with open('constants.pickle', 'wb') as handle:
+            pickle.dump(constant_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        with open('global_vars.pickle', 'wb') as handle:
+            pickle.dump(global_vars, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        with open('cuadruplos.pickle', 'wb') as handle:
+            pickle.dump(cuadruplos, handle, protocol=pickle.HIGHEST_PROTOCOL)

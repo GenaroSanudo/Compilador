@@ -13,8 +13,8 @@ class Directory:
                 'typeOfR' : None,
                 'num_params' : 0,
                 'quad_counter' : 0,
-                'num_vars' : [],
-                'num_temp_vars' : []
+                'num_vars' : [0, 0, 0, 0, 0],
+                'num_temp_vars' : [0, 0, 0, 0, 0]
             }
         }
 
@@ -26,8 +26,8 @@ class Directory:
                 'params' : [],
                 'num_params' : 0,
                 'quad_counter' : 0,
-                'num_vars' : [],
-                'num_temp_vars' : []
+                'num_vars' : [0, 0, 0 , 0, 0],
+                'num_temp_vars' : [0, 0, 0, 0, 0]
             }
             print ("Added func: ", type, name)
         else:
