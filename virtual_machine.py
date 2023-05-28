@@ -790,6 +790,28 @@ class VirtualMachine:
             value = self.global_memory.getValue(type, dir, temp)
         
         print(value)
+    
+    def read(self, target):
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        if (type == 1):
+            try:
+                value = int(input("Enter an integer: "))
+            except:
+                raise Exception("Value entered is not integer")
+        elif (type == 2):
+            try:
+                value = float(input("Enter an float: "))
+            except:
+                raise Exception("Value entered is not valid")
+        else:
+            raise Exception ("Invalid type variable in read statement")
+        
+        if (local):
+            self.execution_queue[-1].setValue(type, value, dir, temp)
+        else:
+            self.global_memory.setValue(type, value, dir, temp)
+
 
 
     def readQuad(self):
@@ -832,7 +854,7 @@ class VirtualMachine:
             elif (op == 70):
                 self.or_func(l_operand, r_operand, target)
             elif (op == 100):
-                pass
+                self.read(target)
             elif (op == 105):
                 self.write(target) 
             elif (op == 110):

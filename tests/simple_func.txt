@@ -15,4 +15,12 @@ main(){
 
 write(uno (357););
 
+read (f);
+
+write (f);
+
+read(a);
+
+write(a);
+
 };
