@@ -30,6 +30,8 @@ operand_stack = []
 # stack_saltos
 jump_stack = []
 
+dim_stack = []
+
 func_dir = function_directory.Directory()
 
 # Counters para las direcciones temporales utilizadas
@@ -48,6 +50,8 @@ global_int_cont = 0
 global_float_cont = 2000
 global_string_cont = 4000
 global_dataframe_cont = 6000
+
+temp_pointer_cont = 56000
 
 
 constant_table = {}
@@ -211,7 +215,7 @@ def p_vars_3(p):
 
     temp = va.getAddress(current_function, type)
 
-    var_list[var_id] = {'type' : type, 'dim' : 1, 'size': 1, 'virtual_dir' : temp}
+    var_list[var_id] = {'type' : type, 'dim' : 0, 'size': 1, 'virtual_dir' : temp}
 
 def p_vars_4(p):
     '''
@@ -289,7 +293,7 @@ def p_punto_param(p):
     type = traduccion(current_type)
     func_dir.addParameter(current_function, type)
     virtual_dir = va.getAddress(current_function, type)
-    var_list[p[-1]] = {'type' : type, 'dim' : 1, 'size': 1, 'virtual_dir' : virtual_dir}
+    var_list[p[-1]] = {'type' : type, 'dim' : 0, 'size': 1, 'virtual_dir' : virtual_dir}
 
 
 def p_punto_param_2(p):
@@ -310,33 +314,75 @@ def p_variable_point(p):
     '''
     variable_point : empty
     '''
-    global global_vars
-    global current_function
-    global func_dir
-    global operand_stack
-    global types_stack
+    global global_vars, current_function, func_dir, operand_stack, types_stack, cuadruplos
+
+    
 
     if (func_dir.checkVariable(current_function, p[-2])):
-        type = func_dir.getType(current_function, p[-2])
-        operand_stack.append(func_dir.getAddress(current_function, p[-2]))
-        types_stack.append(type)
+        dim = func_dir.func_directory[current_function]['vars'][p[-2]]['dim']
+        if (dim > 0):
+            size = func_dir.func_directory[current_function]['vars'][p[-2]]['size']
+            dir = func_dir.func_directory[current_function]['vars'][p[-2]]['virtual_dir']
+
+            if (constant_table.get(str(dir)) != None):
+                constant_dir = constant_table[str(dir)]['virtual_dir']
+            else:
+                constant_table[str(dir)] = {'type' : 1, 'virtual_dir' : va.constant_int}
+                constant_dir = va.constant_int
+                va.constant_int = va.constant_int + 1
+            
+            if (dim == 1):
+                value = operand_stack.pop()
+
+                cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
+                tp = va.getTemporalAddress(current_function, 1)
+                cuadruplos.append(Cuadruplo(10, value, constant_dir, tp))
+                operand_stack.append(tp)
+                types_stack.append(1)
+            elif (dim == 2):
+                value2 = operand_stack.pop()
+                value = operand_stack.pop()
+                cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
+                tp = va.getTemporalAddress(current_function, 1)
+                cuadruplos.append(Cuadruplo(20, value, size[0], tp))
+                cuadruplos.append(Cuadruplo(115, value2, 0, size[1]))
+                tp2 = va.getTemporalAddress(current_function, 1)
+                cuadruplos.append(Cuadruplo(10, tp, value2, tp2))
+                tp3 = va.getTemporalAddress(current_function, 1)
+                cuadruplos.append(Cuadruplo(10, tp2, constant_dir, tp3))
+                operand_stack.append(tp3)
+                types_stack.append(1)
+        else:
+            type = func_dir.getType(current_function, p[-2])
+            operand_stack.append(func_dir.getAddress(current_function, p[-2]))
+            types_stack.append(type)
+        
     elif(global_vars.get(p[-2], False)):
+        dim = global_vars[p[-2]]['dim']
+        
+        if (dim == 1):
+            #AQUI VAN ARREGLOS
+            print(operand_stack.pop())
+        elif (dim == 2):
+            #AQUI VAN MATRICES
+            print(operand_stack.pop(), operand_stack.pop())
         type = global_vars[p[-2]]['type']
         operand_stack.append(global_vars[p[-2]]['virtual_dir'])
         types_stack.append(type)
     else:
         raise Exception("Esta variable no esta declarada", p[-2])
+    
 
 
 def p_variable_2(p):
     '''
-    variable_2 : L_S_BRACKET exp R_S_BRACKET variable_3 
+    variable_2 : L_S_BRACKET add_floor exp R_S_BRACKET remove_floor variable_3 
                     | empty
     '''
 
 def p_variable_3(p):
     '''
-    variable_3 : L_S_BRACKET exp R_S_BRACKET
+    variable_3 : L_S_BRACKET add_floor exp R_S_BRACKET remove_floor
                     | empty
     '''
 
@@ -375,6 +421,8 @@ def p_asigna_point(p):
     left_type = types_stack.pop()
 
     operator = operator_stack.pop()
+
+    print("ellow", right_operand, left_operand)
 
     try:
         result_type = semantic_cube[left_type][right_type][operator]
@@ -494,7 +542,7 @@ def p_add_temp(p):
     global_address = global_vars[called_function]['virtual_dir']
 
     temp_dir = va.getTemporalAddress(called_function, typeOfR)
-
+    
     cuadruplos.append(Cuadruplo(60, global_address, None, temp_dir))
 
     operand_stack.append(temp_dir)
@@ -1114,7 +1162,7 @@ def p_function_punto1(p):
     func_dir.addFunction(p[-1], type)
     if (type != 0):
         global_dir = va.getAddress('program', type)
-        global_vars[p[-1]] = {'type' : type, 'dim' : 1, 'virtual_dir' : global_dir}
+        global_vars[p[-1]] = {'type' : type, 'dim' : 0, 'virtual_dir' : global_dir}
     global current_function
     current_function = p[-1]
 
@@ -1177,7 +1225,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/simple_func.txt", "r")
+      test_file = open("./tests/pruebaArreglos.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1188,11 +1236,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        # cont = 0
-        # for element in cuadruplos:
-        #     print (cont)
-        #     cont = cont +1 
-        #     element.print()
+        cont = 0
+        for element in cuadruplos:
+            print (cont)
+            cont = cont +1 
+            element.print()
         # print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json

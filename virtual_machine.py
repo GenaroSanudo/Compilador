@@ -222,6 +222,8 @@ class VirtualMachine:
         elif ((dir >= 50000) and (dir < 56000)):
             
             return False, False, None, dir, True
+        elif ((dir >= 56000) and (dir < 58000)):
+            pass
 
     def suma(self, l_operand, r_operand, target):
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
@@ -849,6 +851,7 @@ class VirtualMachine:
                 self.not_equal(l_operand, r_operand, target)
             elif (op == 60):
                 self.asigna(l_operand, target)
+                print("Valor", self.execution_queue[-1].getValue(1, 0, True))
             elif (op == 65):
                 self.and_func(l_operand, r_operand, target)
             elif (op == 70):
@@ -867,6 +870,18 @@ class VirtualMachine:
                 self.execution_queue.pop()
                 ip = ip_list.pop()
                 continue
+            elif (op == 115):
+                temp, local, type, dir, constant = self.checkDir(l_operand)
+                if (constant):
+                    value = self.constants[dir]['value']
+                elif (local):
+                    value = self.execution_queue[-1].getValue(type, dir, temp)
+                else:
+                    value = self.global_memory.getValue(type, dir, temp)
+                if ((value < r_operand) and (value >= target)):
+                    raise Exception ("Out of bounds")
+                    
+
             elif (op == 130):
                 #GOTO
                 ip = target
@@ -920,7 +935,7 @@ class VirtualMachine:
                 ip = quad
                 continue
                 
-            
+            print(ip)
             ip += 1
             
             

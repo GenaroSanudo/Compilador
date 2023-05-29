@@ -1,0 +1,17 @@
+program pato : 
+
+
+func int uno(int a){
+    write (50);
+    return (a * 2);
+};
+
+main(){
+
+var int a;
+
+for (a = 1 to 10){
+    write (a);
+};
+
+};

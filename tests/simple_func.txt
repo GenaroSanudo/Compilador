@@ -1,6 +1,7 @@
 program pato : 
 
 var int a,b;
+
 var float f;
 
 
@@ -13,7 +14,15 @@ func int uno(int a){
 
 main(){
 
+var int j[10];
+
+var int ad[2][4];
+
+a = j[3];
+
 write(uno (357););
+
+a = ad[7][5];
 
 read (f);
 

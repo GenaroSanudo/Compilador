@@ -26,7 +26,7 @@
     # 100 : READ
     # 105 : WRITE
     # 110 : RETURN
-    # 115 : 
+    # 115 : VER
     # 130 : GOTO
     # 135 : GOTOF
     # 140 : GOTOV

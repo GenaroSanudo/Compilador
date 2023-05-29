@@ -9,6 +9,10 @@ a = 1;
 b = 2;
 c = 3;
 
+c = a + b;
+
+write (c);
+
 write (a + a);
 write(a + b);
 write (a + 5);
