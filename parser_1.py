@@ -17,7 +17,7 @@ return_flag = 0
 k = None
 
 # For loop
-v_control = None
+v_control = []
 
 # lista de cuadruplos
 cuadruplos = []
@@ -55,6 +55,15 @@ temp_pointer_cont = 56000
 
 
 constant_table = {}
+
+
+def p_error(p):
+    if p:
+        # Print the line number and character position where the error occurred
+        print(f"Syntax error at line {p.lineno}: unexpected {p.value}")
+    else:
+        print("Syntax error: unexpected end of input")
+    exit()
 
 def p_program(p):
     '''
@@ -323,6 +332,56 @@ def p_variable_point(p):
         if (dim > 0):
             size = func_dir.func_directory[current_function]['vars'][p[-2]]['size']
             dir = func_dir.func_directory[current_function]['vars'][p[-2]]['virtual_dir']
+            type = func_dir.func_directory[current_function]['vars'][p[-2]]['type']
+
+            if (constant_table.get(str(dir)) != None):
+                constant_dir = constant_table[str(dir)]['virtual_dir']
+            else:
+                constant_table[str(dir)] = {'type' : 1, 'virtual_dir' : va.constant_int}
+                constant_dir = va.constant_int
+                va.constant_int = va.constant_int + 1
+            if (dim == 1):
+                value = operand_stack.pop()
+
+                cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
+                tp = va.getTemporalPointer()
+                cuadruplos.append(Cuadruplo(10, value, constant_dir, tp))
+                operand_stack.append(tp)
+                types_stack.append(type)
+            elif (dim == 2):
+                value2 = operand_stack.pop()
+                value = operand_stack.pop()
+                # print("Value", value)
+                if (constant_table.get(str(size[1])) != None):
+                    constant_size = constant_table[str(size[1])]['virtual_dir']
+                else:
+                    constant_table[str(size[1])] = {'type' : 1, 'virtual_dir' : va.constant_int}
+                    constant_size = va.constant_int
+                    va.constant_int = va.constant_int + 1
+
+                cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
+                ta = va.getTemporalAddress(current_function, type)
+
+                cuadruplos.append(Cuadruplo(20, value, constant_size, ta))
+                cuadruplos.append(Cuadruplo(115, value2, 0, size[1]))
+                ta2 = va.getTemporalAddress(current_function, type)
+                cuadruplos.append(Cuadruplo(10, ta, value2, ta2))
+                tp = va.getTemporalPointer()
+                cuadruplos.append(Cuadruplo(10, ta2, constant_dir, tp))
+                operand_stack.append(tp)
+                # Va a tener que cambiarse esto
+                types_stack.append(type)
+        else:
+            type = func_dir.getType(current_function, p[-2])
+            operand_stack.append(func_dir.getAddress(current_function, p[-2]))
+            types_stack.append(type)
+        
+    elif(global_vars.get(p[-2], False)):
+        dim = global_vars[p[-2]]['dim']
+        if (dim > 0):
+            size = global_vars[p[-2]]['size']
+            dir = global_vars[p[-2]]['virtual_dir']
+            type = global_vars[p[-2]]['type']
 
             if (constant_table.get(str(dir)) != None):
                 constant_dir = constant_table[str(dir)]['virtual_dir']
@@ -335,40 +394,36 @@ def p_variable_point(p):
                 value = operand_stack.pop()
 
                 cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
-                tp = va.getTemporalAddress(current_function, 1)
+                tp = va.getTemporalPointer()
                 cuadruplos.append(Cuadruplo(10, value, constant_dir, tp))
                 operand_stack.append(tp)
-                types_stack.append(1)
+                types_stack.append(type)
             elif (dim == 2):
                 value2 = operand_stack.pop()
                 value = operand_stack.pop()
+                if (constant_table.get(str(size[1])) != None):
+                    constant_size = constant_table[str(size[1])]['virtual_dir']
+                else:
+                    constant_table[str(size[1])] = {'type' : 1, 'virtual_dir' : va.constant_int}
+                    constant_size = va.constant_int
+                    va.constant_int = va.constant_int + 1
+
                 cuadruplos.append(Cuadruplo(115, value, 0, size[0]))
-                tp = va.getTemporalAddress(current_function, 1)
-                cuadruplos.append(Cuadruplo(20, value, size[0], tp))
+                ta = va.getTemporalAddress(current_function, type)
+                
+                cuadruplos.append(Cuadruplo(20, value, constant_size, ta))
                 cuadruplos.append(Cuadruplo(115, value2, 0, size[1]))
-                tp2 = va.getTemporalAddress(current_function, 1)
-                cuadruplos.append(Cuadruplo(10, tp, value2, tp2))
-                tp3 = va.getTemporalAddress(current_function, 1)
-                cuadruplos.append(Cuadruplo(10, tp2, constant_dir, tp3))
-                operand_stack.append(tp3)
-                types_stack.append(1)
+                ta2 = va.getTemporalAddress(current_function, type)
+                cuadruplos.append(Cuadruplo(10, ta, value2, ta2))
+                tp = va.getTemporalPointer()
+                cuadruplos.append(Cuadruplo(10, ta2, constant_dir, tp))
+                operand_stack.append(tp)
+                # Va a tener que cambiarse esto
+                types_stack.append(type)
         else:
-            type = func_dir.getType(current_function, p[-2])
-            operand_stack.append(func_dir.getAddress(current_function, p[-2]))
+            type = global_vars[p[-2]]['type']
+            operand_stack.append(global_vars[p[-2]]['virtual_dir'])
             types_stack.append(type)
-        
-    elif(global_vars.get(p[-2], False)):
-        dim = global_vars[p[-2]]['dim']
-        
-        if (dim == 1):
-            #AQUI VAN ARREGLOS
-            print(operand_stack.pop())
-        elif (dim == 2):
-            #AQUI VAN MATRICES
-            print(operand_stack.pop(), operand_stack.pop())
-        type = global_vars[p[-2]]['type']
-        operand_stack.append(global_vars[p[-2]]['virtual_dir'])
-        types_stack.append(type)
     else:
         raise Exception("Esta variable no esta declarada", p[-2])
     
@@ -422,7 +477,7 @@ def p_asigna_point(p):
 
     operator = operator_stack.pop()
 
-    print("ellow", right_operand, left_operand)
+    # print("ellow", right_operand, left_operand)
 
     try:
         result_type = semantic_cube[left_type][right_type][operator]
@@ -696,11 +751,11 @@ def p_for_point_2(p):
         raise Exception ("Type mismatch in for loop, number must be an integer")
     else:
         exp = operand_stack.pop()
-        v_control = operand_stack[-1]
+        v_control.append(operand_stack[-1])
         control_type = types_stack[-1]
         try:
             tipo_res = semantic_cube[exp_type][control_type][60]
-            cuadruplos.append(Cuadruplo(60, exp, None, v_control))
+            cuadruplos.append(Cuadruplo(60, exp, None, v_control[-1]))
         except:
             raise Exception ("Type mismatch in for loop")
 
@@ -724,7 +779,7 @@ def p_for_point_3(p):
         Tx = va.local_temp_bool
         va.local_temp_bool = va.local_temp_bool + 1
 
-        cuadruplos.append(Cuadruplo(30, v_control, v_final, Tx))
+        cuadruplos.append(Cuadruplo(30, v_control[-1], v_final, Tx))
 
         jump_stack.append(len(cuadruplos) - 1)
         cuadruplos.append(Cuadruplo(135, Tx, None, None))
@@ -746,14 +801,14 @@ def p_for_point_4(p):
     # va.local_temp_int = va.local_temp_int + 1
 
     if (constant_table.get(str(1)) != None):
-        address = constant_table[str(p[-1])]['virtual_dir']
+        address = constant_table[str(1)]['virtual_dir']
     else:
         constant_table[str(1)] = {'type' : 1, 'virtual_dir' : va.constant_int}
         address = va.constant_int
         va.constant_int = va.constant_int + 1
 
-    cuadruplos.append(Cuadruplo(10, v_control, address, Ty))
-    cuadruplos.append(Cuadruplo(60, Ty, None, v_control))
+    cuadruplos.append(Cuadruplo(10, v_control[-1], address, Ty))
+    cuadruplos.append(Cuadruplo(60, Ty, None, v_control[-1]))
     cuadruplos.append(Cuadruplo(60, Ty, None, operand_stack[-1]))
 
     Fin = jump_stack.pop()
@@ -764,6 +819,7 @@ def p_for_point_4(p):
 
     operand_stack.pop()
     types_stack.pop()
+    v_control.pop()
 
 
 def p_while_l(p):
@@ -1225,7 +1281,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/pruebaArreglos.txt", "r")
+      test_file = open("./tests/mat_mult.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1236,11 +1292,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        cont = 0
-        for element in cuadruplos:
-            print (cont)
-            cont = cont +1 
-            element.print()
+        # cont = 0
+        # for element in cuadruplos:
+        #     print (cont)
+        #     cont = cont +1 
+        #     element.print()
         # print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json

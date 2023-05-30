@@ -21,7 +21,12 @@ class Memory:
         self.param_int = 0
         self.param_float = 0
 
+        self.temp_pointer = [None] * 2000
+
     def setValue(self, type, value, dir, temp = False):
+
+        if (type == 6):
+            self.temp_pointer[dir] = value
 
         if (temp):
             if (type == 1):
@@ -45,6 +50,9 @@ class Memory:
                 self.local_dataF[dir] = value
 
     def getValue(self, type, dir, temp):
+
+        if (type == 6):
+            return self.temp_pointer[dir]
 
         if (temp):
             if (type == 1):
@@ -223,13 +231,23 @@ class VirtualMachine:
             
             return False, False, None, dir, True
         elif ((dir >= 56000) and (dir < 58000)):
-            pass
+            dir = dir - 56000
+            return False, True, 6, dir, False
 
     def suma(self, l_operand, r_operand, target):
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+        if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+        
+        if(r_type == 6):
+                temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+        
+        
         if (l_constant and r_constant):
             # ambas constantes
             l_value = self.constants[l_dir]['value']
@@ -245,12 +263,21 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         
         elif (l_local):
-            l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
-
+            if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+            else:
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
             if (r_constant):
                 r_value = self.constants[r_dir]['value']
             elif (r_local):
-                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         else:
@@ -263,7 +290,9 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
 
         result = l_value + r_value
-
+        # if (type == 6):
+        # print("DIRECCION", dir,l_value, l_dir, r_value, r_dir, result)
+        # print("RESULT", result, type)
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
@@ -273,6 +302,14 @@ class VirtualMachine:
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
+
+        if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+        
+        if(r_type == 6):
+                temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
         if (l_constant and r_constant):
             # ambas constantes
@@ -289,12 +326,21 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         
         elif (l_local):
-            l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
-
+            if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+            else:
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
             if (r_constant):
                 r_value = self.constants[r_dir]['value']
             elif (r_local):
-                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         else:
@@ -318,6 +364,14 @@ class VirtualMachine:
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+        if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+        
+        if(r_type == 6):
+                temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
         if (l_constant and r_constant):
             # ambas constantes
             l_value = self.constants[l_dir]['value']
@@ -333,12 +387,22 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         
         elif (l_local):
-            l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+            if(l_type == 6):
+                temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+            else:
+                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
             if (r_constant):
                 r_value = self.constants[r_dir]['value']
             elif (r_local):
-                r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
         else:
@@ -351,6 +415,7 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
 
         result = l_value * r_value
+        # print("MULT", l_value, r_value, r_dir, r_local, r_temp)
 
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
@@ -361,6 +426,15 @@ class VirtualMachine:
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
+            
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
             if (l_constant and r_constant):
                 # ambas constantes
@@ -377,12 +451,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -408,6 +492,14 @@ class VirtualMachine:
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
+       
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
             if (l_constant and r_constant):
                 # ambas constantes
@@ -424,12 +516,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -453,6 +555,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -468,12 +579,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -497,6 +618,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -512,12 +642,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -541,6 +681,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -556,12 +705,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -585,6 +744,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -600,12 +768,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -629,6 +807,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -644,12 +831,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -673,6 +870,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -688,12 +894,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -717,6 +933,15 @@ class VirtualMachine:
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
+
+            if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
+            if(r_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -732,12 +957,22 @@ class VirtualMachine:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             
             elif (l_local):
-                l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                if(l_type == 6):
+                    temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+                    t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                    l_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                else:
+                    l_value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
 
                 if (r_constant):
                     r_value = self.constants[r_dir]['value']
                 elif (r_local):
-                    r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                    if(r_type == 6):
+                        temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
+                        t_temp, t_local, t_type, t_dir, t_constant = self.checkDir(temp_val)
+                        r_value = self.execution_queue[-1].getValue(t_type, t_dir, t_temp)
+                    else:
+                        r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
             else:
@@ -761,6 +996,14 @@ class VirtualMachine:
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+        if (type == 6):
+            temp_val = self.execution_queue[-1].getValue(type, dir, temp)
+            temp, local, type, dir, constant = self.checkDir(temp_val)
+
+        if (l_type == 6):
+            temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+            l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
+            
         if (l_constant):
             # Aqui entra si son constantes
             result = self.constants[l_dir]['value']
@@ -774,7 +1017,7 @@ class VirtualMachine:
                 
         if (result == None):
             raise Exception ("Valor asignado no ha sido especificado")
-                
+        
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
@@ -783,6 +1026,10 @@ class VirtualMachine:
 
     def write(self, target):
         temp, local, type, dir, constant = self.checkDir(target)
+        if(type == 6):
+            temp_val = self.execution_queue[-1].getValue(type, dir, temp)
+            # print(self.execution_queue[-1].getValue(6,1,False))
+            temp, local, type, dir, constant = self.checkDir(temp_val)
 
         if (constant):
             value = self.constants[dir]['value']
@@ -795,6 +1042,10 @@ class VirtualMachine:
     
     def read(self, target):
         temp, local, type, dir, constant = self.checkDir(target)
+
+        if(type == 6):
+            temp_val = self.execution_queue[-1].getValue(type, dir, temp)
+            temp, local, type, dir, constant = self.checkDir(temp_val)
 
         if (type == 1):
             try:
@@ -830,11 +1081,15 @@ class VirtualMachine:
             # print(ip)
 
             if (op == 10):
+                # print(ip)
                 self.suma(l_operand, r_operand, target)
+                # print("VALOR SUMA ", self.execution_queue[-1].getValue(6, 6, False))
+                # print("VALOR GLOBAL", self.global_memory.getValue(1, 1002, False))
             elif (op == 15):
                 self.resta(l_operand, r_operand, target)
             elif (op == 20):
                 self.mult(l_operand, r_operand, target)
+                # print("MULTIPLICACION", self.execution_queue[-1].getValue(1,0, True))
             elif (op == 25):
                 self.divide(l_operand, r_operand, target)
             elif (op == 30):
@@ -851,7 +1106,6 @@ class VirtualMachine:
                 self.not_equal(l_operand, r_operand, target)
             elif (op == 60):
                 self.asigna(l_operand, target)
-                print("Valor", self.execution_queue[-1].getValue(1, 0, True))
             elif (op == 65):
                 self.and_func(l_operand, r_operand, target)
             elif (op == 70):
@@ -859,10 +1113,15 @@ class VirtualMachine:
             elif (op == 100):
                 self.read(target)
             elif (op == 105):
-                self.write(target) 
+                self.write(target)
             elif (op == 110):
                 temp, local, type, dir, constant = self.checkDir(target)
-                value = self.execution_queue[-1].getValue(type, dir, temp)
+                if (constant):
+                    value = self.constants[dir]['value']
+                elif(local):
+                    value = self.execution_queue[-1].getValue(type, dir, temp)
+                else:
+                    value = self.global_memory.getValue(type,dir,temp)
 
                 temp, local, type, dir, constant = self.checkDir(l_operand)
                 self.global_memory.setValue(type, value, dir, temp)
@@ -872,16 +1131,20 @@ class VirtualMachine:
                 continue
             elif (op == 115):
                 temp, local, type, dir, constant = self.checkDir(l_operand)
+                if (type == 6):
+                    temp_val = self.execution_queue[-1].getValue(type, dir, temp)
+                    temp, local, type, dir, constant = self.checkDir(temp_val)
+                # print(l_operand)
                 if (constant):
                     value = self.constants[dir]['value']
                 elif (local):
                     value = self.execution_queue[-1].getValue(type, dir, temp)
                 else:
                     value = self.global_memory.getValue(type, dir, temp)
-                if ((value < r_operand) and (value >= target)):
-                    raise Exception ("Out of bounds")
+                # print("COMP", value, r_operand, target, type)
+                if ((value < r_operand) or (value >= target) or (type != 1 and constant == False)):
+                    raise Exception ("Out of bounds", value, r_operand, target, type, constant)
                     
-
             elif (op == 130):
                 #GOTO
                 ip = target
@@ -935,7 +1198,7 @@ class VirtualMachine:
                 ip = quad
                 continue
                 
-            print(ip)
+            # print(ip)
             ip += 1
             
             

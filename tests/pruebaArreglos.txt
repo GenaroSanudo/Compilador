@@ -7,11 +7,14 @@ func int uno(int a){
 };
 
 main(){
+var int j[10][15];
+var int a[100];
 
-var int a;
+a[10] = 3;
+j[0][2] = 5;
+j[1][2] = 10;
+j[5][5] = 5;
 
-for (a = 1 to 10){
-    write (a);
-};
+write(a[ j[5][5] * j[1][2] / j[0][2] ]);
 
 };

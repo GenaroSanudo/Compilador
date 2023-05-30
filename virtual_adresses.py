@@ -25,6 +25,8 @@ constant_int = 50000
 constant_float = 52000
 constant_string = 54000
 
+temp_pointer = 56000
+
 
 def getAddress(current_function, type, size = 1):
     if (current_function == 'program'):
@@ -123,3 +125,9 @@ def getTemporalAddress(current_function, type, size = 1):
             temp = local_temp_dataframe
             local_temp_dataframe = local_temp_dataframe + size
             return temp
+        
+def getTemporalPointer():
+    global temp_pointer
+    temp = temp_pointer
+    temp_pointer += 1
+    return temp
