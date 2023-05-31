@@ -15,9 +15,7 @@ func void mat_mult(int length, int length2, int length3){
             };
         };
     };
-
-
-    };
+};
 
 main(){
     var int i, j;

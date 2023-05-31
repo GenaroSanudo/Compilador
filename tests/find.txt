@@ -1,0 +1,42 @@
+program pato : 
+
+var int a[10];
+var int c;
+
+func int find(int n){
+    var int i;
+
+    c = 30;
+
+    for(i = 0 to 10){
+        if (a[i] == n){
+            return (i);
+        };
+    };
+    
+    return (0);
+        
+    };
+
+main(){
+    var int i, f;
+    var int c[10][15];
+
+    a[0] = 5;
+
+    for (i = 1 to 10){
+        a[i] = a[i-1];
+    };
+
+    
+    f = find(100);;
+    if (f != 0){
+        write ("Se encontro el valor en la posicion: ");
+        write(f);
+    }else{
+        write ("No se encontro el valor especificado");
+    };
+
+
+
+};

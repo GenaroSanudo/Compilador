@@ -1,0 +1,30 @@
+program pato : 
+
+
+func int fact_recur(int n){
+    if (n <= 1){
+        return (n);
+    }else{
+        return(n * fact_recur(n-1););
+    };
+};
+
+func int fact_iterative(int n){
+    var int fact, i;
+    fact = 1;
+
+    for (i = 1 to n+1){
+        fact = fact * i;
+    };
+    
+    return (fact);
+};
+
+main(){
+var int i, num;
+num = 10;
+
+write("Factorial iterativo: ", fact_iterative(num););
+write("Factorial recursivo: ", fact_recur(num););
+
+};

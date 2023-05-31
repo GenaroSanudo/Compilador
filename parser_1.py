@@ -59,10 +59,9 @@ constant_table = {}
 
 def p_error(p):
     if p:
-        # Print the line number and character position where the error occurred
-        print(f"Syntax error at line {p.lineno}: unexpected {p.value}")
+        print(f"Syntax error, unexpected {p.value}")
     else:
-        print("Syntax error: unexpected end of input")
+        print("Syntax error")
     exit()
 
 def p_program(p):
@@ -117,7 +116,6 @@ def p_count_global_vars(p):
     func_dir.func_directory['program']['num_vars'] = [int_cont, float_cont, string_cont, dataframe_cont]
     func_dir.func_directory['program']['vars'].clear()
     
-
 def p_modules_2(p):
     '''
     modules_2 : vars
@@ -204,7 +202,6 @@ def p_vars(p):
     vars : VAR vars_2 SEMICOLON vars_8
     '''
     
-
 def p_vars_2(p):
     '''
     vars_2 : tipo_comp vars_3
@@ -243,6 +240,7 @@ def p_vars_6(p):
     vars_6 : punto_id_especial L_S_BRACKET CTE_I R_S_BRACKET vars_7
                 | empty
     '''
+
 def p_punto_id_especial(p):
     '''
     punto_id_especial : empty
@@ -274,7 +272,6 @@ def p_var_mat(p):
     type = traduccion(current_type)
     var_list[last_id] = {'type' : type, 'dim' : 2, 'size': [p[-5],p[-2]], 'virtual_dir' : va.getAddress(current_function, type, p[-2] * p[-5])}
     
-
 def p_vars_8(p):
     '''
     vars_8 : vars 
@@ -304,7 +301,6 @@ def p_punto_param(p):
     virtual_dir = va.getAddress(current_function, type)
     var_list[p[-1]] = {'type' : type, 'dim' : 0, 'size': 1, 'virtual_dir' : virtual_dir}
 
-
 def p_punto_param_2(p):
     '''
     punto_param_2 : empty
@@ -313,7 +309,6 @@ def p_punto_param_2(p):
     global func_dir
     func_dir.func_directory[current_function]['num_params'] = len(func_dir.func_directory[current_function]['params'])
     
-
 def p_variable(p):
     '''
     variable : ID variable_2 variable_point
@@ -324,8 +319,6 @@ def p_variable_point(p):
     variable_point : empty
     '''
     global global_vars, current_function, func_dir, operand_stack, types_stack, cuadruplos
-
-    
 
     if (func_dir.checkVariable(current_function, p[-2])):
         dim = func_dir.func_directory[current_function]['vars'][p[-2]]['dim']
@@ -427,8 +420,6 @@ def p_variable_point(p):
     else:
         raise Exception("Esta variable no esta declarada", p[-2])
     
-
-
 def p_variable_2(p):
     '''
     variable_2 : L_S_BRACKET add_floor exp R_S_BRACKET remove_floor variable_3 
@@ -486,8 +477,6 @@ def p_asigna_point(p):
     except:
         raise Exception ("Asignación no compatible")
 
-
-
 def p_llamada(p):
     '''
     llamada : ID verify_func not_void LPAR add_floor llamada_2 llamada_3 RPAR remove_floor SEMICOLON gosub add_temp
@@ -531,8 +520,6 @@ def p_not_void(p):
     if (func_dir.func_directory[p[-2]]['typeOfR'] == 0):
         raise Exception (" Void functions cannot be called in return statement")
     
-
-
 def p_verify_func(p):
     '''
     verify_func : empty
@@ -550,7 +537,6 @@ def p_verify_func(p):
 
     k = 1
     
-
 def p_verify_parameter(p):
     '''
     verify_parameter : empty
@@ -647,8 +633,6 @@ def p_write_point(p):
     types_stack.pop()
     cuadruplos.append(Cuadruplo(105, None, None, op))
 
-    
-
 def p_if_1(p):
     '''
     if_1 : IF LPAR exp if_point RPAR L_C_BRACKET estatuto if_2 R_C_BRACKET if_3 SEMICOLON if_point_2
@@ -710,7 +694,6 @@ def p_for_l(p):
     '''
     for_l : FOR LPAR ID for_point_1 EQUAL exp for_point_2 TO exp for_point_3 RPAR L_C_BRACKET estatuto for_l_2 R_C_BRACKET SEMICOLON for_point_4
     '''
-
 
 def p_for_l_2(p):
     '''
@@ -821,7 +804,6 @@ def p_for_point_4(p):
     types_stack.pop()
     v_control.pop()
 
-
 def p_while_l(p):
     '''
     while_l : WHILE while_point LPAR exp RPAR while_point_2 L_C_BRACKET estatuto while_l_2 R_C_BRACKET SEMICOLON while_point_3
@@ -858,7 +840,6 @@ def p_while_point_2(p):
         result = operand_stack.pop()
         cuadruplos.append(Cuadruplo(135, result, None, None))
         jump_stack.append(len(cuadruplos)-1)
-
 
 def p_while_point_3(p):
     '''
@@ -900,12 +881,6 @@ def p_check_valid_func(p):
         cuadruplos.append(Cuadruplo(110, dir, None, op))
     else:
         raise Exception("Ivalid return type")
-
-    
-
-
-
-
 
 def p_func_extra(p):
     '''
@@ -1039,7 +1014,6 @@ def p_add_operator_1(p):
             operand_stack.append(temp)
             types_stack.append(result_type)
 
-
 def p_add_operator_2(p):
     '''
     add_operator_2 : empty 
@@ -1067,8 +1041,7 @@ def p_add_operator_2(p):
             cuadruplos.append(Cuadruplo(operator, left_operand, right_operand, temp))
             operand_stack.append(temp)
             types_stack.append(result_type)
-
-    
+   
 def p_add_operator_3(p):
     '''
     add_operator_3 : empty 
@@ -1247,7 +1220,6 @@ def p_func_agrega_v(p):
 
     var_list.clear()
 
-
 def p_final_func_point(p):
     '''
     final_func_point : empty
@@ -1270,8 +1242,6 @@ def p_final_func_point(p):
 
     cuadruplos.append(Cuadruplo(145, None, None, None))
 
-
-
 def p_empty(p):
     '''
     empty : 
@@ -1281,7 +1251,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/mat_mult.txt", "r")
+      test_file = open("./tests/fibonacci.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
@@ -1292,11 +1262,11 @@ def test_Parser():
 
 if __name__ == '__main__':
         test_Parser()
-        # cont = 0
-        # for element in cuadruplos:
-        #     print (cont)
-        #     cont = cont +1 
-        #     element.print()
+        cont = 0
+        for element in cuadruplos:
+            print (cont)
+            cont = cont +1 
+            element.print()
         # print(operator_stack, operand_stack, types_stack, jump_stack)
         # func_dir.print()
         # import json

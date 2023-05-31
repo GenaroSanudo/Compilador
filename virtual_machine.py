@@ -105,18 +105,7 @@ class VirtualMachine:
         g_memory = self.func_dir.func_directory['program']['num_vars']
         g_temp_memory = self.func_dir.func_directory['program']['num_temp_vars']
         self.global_memory = Memory(g_memory[0], g_memory[1], g_memory[2], g_memory[3], g_temp_memory[0], g_temp_memory[1], g_temp_memory[2], g_temp_memory[3], g_temp_memory[4])
-        
-        # Adds global variables
-        # for var, element in self.global_vars.items():
-        #     type = element['type']
-        #     dir = element['virtual_dir']
 
-        #     print(type, dir)
-
-        #     if (type == 1):
-        #         self.global_memory.setValue(type, )
-
-        # Adds memory for main and appends to execution queue
         main_memory = self.func_dir.func_directory['main']['num_vars']
         main_temp_memory = self.func_dir.func_directory['main']['num_temp_vars']
         self.execution_queue.append(Memory(main_memory[0], main_memory[1], main_memory[2], main_memory[3], main_temp_memory[0], main_temp_memory[1], main_temp_memory[2], main_temp_memory[3], main_temp_memory[4]))
@@ -1201,10 +1190,6 @@ class VirtualMachine:
             # print(ip)
             ip += 1
             
-            
-
-
-
 with open("parser_1.py") as f:
     exec(f.read())
 

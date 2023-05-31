@@ -1,0 +1,56 @@
+program pato : 
+
+var int arr[10];
+var int c;
+
+func void bubble_sort(int length){
+    var int i, j, s;
+
+
+    for (i = 1 to length){
+        for (j = 0 to length-i){
+            if (arr[j] > arr[j+1]){
+                s = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = s;
+            };
+        };
+    };
+
+
+    };
+
+main(){
+    var int i, f;
+    var int c[10][15];
+
+    var dataframe df;
+
+    df = 1;
+
+
+    for (i = 0 to 10){
+        arr[i] = 10-i;
+    };
+
+    arr[5] = 45;
+
+    arr[8] = 74;
+
+    write("Unsorted Array");
+
+    for (i = 0 to 10){
+        write(arr[i]);
+    };
+
+    bubble_sort(10);
+
+    write("Sorted array");
+
+        for (i = 0 to 10){
+        write(arr[i]);
+    };
+    
+
+
+};
