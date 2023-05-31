@@ -24,6 +24,12 @@ reserved = {
     # Read/Write
     'read' : 'READ',
     'write' : 'WRITE',
+    # Especial
+    'mean' : 'MEAN',
+    'mode' : 'MODE',
+    'median' : 'MEDIAN',
+    'linear_reg' : 'LINEAR_REG',
+    'csv_read' : 'CSV_READ',
 }
 
 

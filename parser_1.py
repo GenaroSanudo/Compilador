@@ -1,9 +1,9 @@
 import ply.yacc as yacc
 from lexer import tokens
-from cubo import semantic_cube, traduccion
-import function_directory
-from cuadruplo import Cuadruplo, fillCuad
-import virtual_adresses as va
+from Components.cubo import semantic_cube, traduccion
+import Components.function_directory as function_directory
+from Components.cuadruplo import Cuadruplo, fillCuad
+import Components.virtual_adresses as va
 import pickle
 
 # Function directory
@@ -1242,6 +1242,8 @@ def p_final_func_point(p):
 
     cuadruplos.append(Cuadruplo(145, None, None, None))
 
+
+
 def p_empty(p):
     '''
     empty : 
@@ -1275,14 +1277,14 @@ if __name__ == '__main__':
         # print(global_vars)
         # print(constant_table)
 
-        with open('func_dir.pickle', 'wb') as handle:
+        with open('./Pickle/func_dir.pickle', 'wb') as handle:
             pickle.dump(func_dir, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open('constants.pickle', 'wb') as handle:
+        with open('./Pickle/constants.pickle', 'wb') as handle:
             pickle.dump(constant_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open('global_vars.pickle', 'wb') as handle:
+        with open('./Pickle/global_vars.pickle', 'wb') as handle:
             pickle.dump(global_vars, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        with open('cuadruplos.pickle', 'wb') as handle:
+        with open('./Pickle/cuadruplos.pickle', 'wb') as handle:
             pickle.dump(cuadruplos, handle, protocol=pickle.HIGHEST_PROTOCOL)

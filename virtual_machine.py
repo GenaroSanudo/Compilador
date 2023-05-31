@@ -1,6 +1,6 @@
 
 import pickle
-from function_directory import Directory
+from Components.function_directory import Directory
 
 class Memory:
 
@@ -279,9 +279,7 @@ class VirtualMachine:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
 
         result = l_value + r_value
-        # if (type == 6):
-        # print("DIRECCION", dir,l_value, l_dir, r_value, r_dir, result)
-        # print("RESULT", result, type)
+
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
@@ -1193,16 +1191,16 @@ class VirtualMachine:
 with open("parser_1.py") as f:
     exec(f.read())
 
-with open('func_dir.pickle', 'rb') as handle:
+with open('./Pickle/func_dir.pickle', 'rb') as handle:
     func_dir = pickle.load(handle)
 
-with open('constants.pickle', 'rb') as handle:
+with open('./Pickle/constants.pickle', 'rb') as handle:
     constant_table = pickle.load(handle)
 
-with open('global_vars.pickle', 'rb') as handle:
+with open('./Pickle/global_vars.pickle', 'rb') as handle:
     global_vars = pickle.load(handle)
 
-with open('cuadruplos.pickle', 'rb') as handle:
+with open('./Pickle/cuadruplos.pickle', 'rb') as handle:
     cuad = pickle.load(handle)
 
 
