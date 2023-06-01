@@ -1,6 +1,7 @@
 
 import pickle
 from Components.function_directory import Directory
+import seaborn as sns
 
 # Estadistica
 from sklearn.linear_model import LinearRegression
@@ -1155,6 +1156,7 @@ class VirtualMachine:
         plt.scatter(x, y)
         plt.plot(x, predictions, color='red')
         plt.show() 
+        
 
     def boxplot(self, target):
         temp, local, type, dir, constant = self.checkDir(target)
@@ -1167,11 +1169,36 @@ class VirtualMachine:
         except:
             raise Exception ("Error in linear regression ")
         
-        print(df)
         try:      
-            df[0].boxplot()
+            for column in df:
+                plt.figure()
+                df.boxplot([column])   
+                plt.show()   
         except:
             raise Exception("Error aqui")
+        
+        
+        
+    
+    def histogram(self, target):
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        try:
+            if (local):
+                df = self.execution_queue[-1].getValue(type, dir, temp)
+            else:
+                df = self.global_memory.getValue(type, dir, temp)
+        except:
+            raise Exception ("Error in histogram ")
+        # df.hist()
+        # plt.show()
+
+        try:    
+            for column in df:
+                df.hist([column])   
+                plt.show()   
+        except:
+            raise Exception("Error in histogram")
 
         
 
@@ -1320,7 +1347,7 @@ class VirtualMachine:
             elif(op == 225):
                 self.boxplot(target)
             elif(op == 230):
-                pass
+                self.histogram(target)
                 
             # print(ip)
             ip += 1
