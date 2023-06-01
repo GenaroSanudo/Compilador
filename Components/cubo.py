@@ -34,6 +34,15 @@
     # 150 ERA
     # 155 PARAMETER
     # 160 GOSUB
+
+    # 200 : READ_CSV
+    # 205 : MEAN
+    # 210 : MODE
+    # 215 : MEDIAN
+    # 220 : LINEAR REGR
+    # 225 : BOX PLOT
+    # 230 : HISTOGRAM
+
 }
 # }
 

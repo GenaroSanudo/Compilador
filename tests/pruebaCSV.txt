@@ -1,0 +1,25 @@
+program pato : 
+
+
+main(){
+    var dataframe d;
+    var dataframe c;
+    var dataframe a;
+
+    d = csv_read("./csv/winequality-red.csv");
+
+    a = csv_read("./csv/bottle.csv");
+    
+    c = mean(d);
+    write(d);
+    write(c);
+    c = mode(d);
+    write(c);
+    c = median(d);
+    write(c);
+    
+    # linear_reg(a);
+    box_plot(d);
+    histogram(d);
+    
+};

@@ -57,12 +57,12 @@ temp_pointer_cont = 56000
 constant_table = {}
 
 
-def p_error(p):
-    if p:
-        print(f"Syntax error, unexpected {p.value}")
-    else:
-        print("Syntax error")
-    exit()
+# def p_error(p):
+#     if p:
+#         print(f"Syntax error, unexpected {p.value}")
+#     else:
+#         print("Syntax error")
+#     exit()
 
 def p_program(p):
     '''
@@ -108,6 +108,9 @@ def p_count_global_vars(p):
     string_cont = va.global_string - global_string_cont
     dataframe_cont =  va.global_dataframe - global_dataframe_cont
 
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000)):
+        raise Exception ("Stack overflow")
+
     global_int_cont = va.global_int
     global_float_cont = va.global_float
     global_string_cont = va.global_string
@@ -152,6 +155,15 @@ def p_main_final(p):
     global current_function, func_dir, cuadruplos
     global temp_int_cont, temp_float_cont, temp_dataf_cont, temp_bool_cont, temp_string_cont
 
+    int_cont = va.local_temp_int - temp_int_cont
+    float_cont = va.local_temp_float-temp_float_cont
+    bool_cont = va.local_temp_bool - temp_bool_cont
+    string_cont = va.local_temp_string - temp_string_cont
+    dataframe_cont = va.local_temp_dataframe - temp_dataf_cont
+
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000)):
+        raise Exception ("Stack overflow")
+
     temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
     func_dir.setTempVars(current_function, temp_addresses)
 
@@ -159,6 +171,8 @@ def p_main_final(p):
     va.local_temp_float = temp_float_cont
     va.local_temp_bool = temp_bool_cont
     va.local_temp_dataframe = temp_dataf_cont
+
+    
 
     func_dir.func_directory[current_function]['vars'].clear()
 
@@ -444,6 +458,7 @@ def p_estatuto(p):
                 | while_l
                 | return
                 | func_extra
+                | funciones_especiales
     '''
 
 def p_asigna(p):
@@ -1210,6 +1225,9 @@ def p_func_agrega_v(p):
     string_cont = va.local_string - local_string_cont
     dataframe_cont =  va.local_dataframe - local_dataframe_cont
 
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000)):
+        raise Exception ("Stack overflow")
+
     va.local_int = local_int_cont
     va.local_float = local_float_cont
     va.local_string = local_string_cont
@@ -1229,6 +1247,15 @@ def p_final_func_point(p):
 
     if (return_flag == 0):
         raise Exception("Function needs to have at least ONE return")
+    
+    int_cont = va.local_temp_int - temp_int_cont
+    float_cont = va.local_temp_float-temp_float_cont
+    bool_cont = va.local_temp_bool - temp_bool_cont
+    string_cont = va.local_temp_string - temp_string_cont
+    dataframe_cont = va.local_temp_dataframe - temp_dataf_cont
+
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000)):
+        raise Exception ("Stack overflow")
 
     temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
     func_dir.setTempVars(current_function, temp_addresses)
@@ -1242,7 +1269,148 @@ def p_final_func_point(p):
 
     cuadruplos.append(Cuadruplo(145, None, None, None))
 
+# COMIENZAN FUNCIONES ESPECIALES
 
+def p_funciones_especiales(p):
+    '''
+    funciones_especiales : read_csv
+                            | mean_func
+                            | mode_func
+                            | median_func
+                            | linear_reg_func
+                            | box_plt
+                            | histogram_plt
+    '''
+
+def p_check_df(p):
+    '''
+    check_df : empty
+    '''
+    global types_stack
+    if (types_stack[-1] != 5):
+        raise Exception("Invalid type, must be dataframe")
+
+def p_read_csv(p):
+    '''
+    read_csv : variable EQUAL check_df CSV_READ LPAR CTE_S check_name add_constant_s add_quad_readCSV RPAR SEMICOLON
+    '''
+
+def p_add_quad_readCSV(p):
+    '''
+    add_quad_readCSV : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+
+    cuadruplos.append(Cuadruplo(200, operand_stack.pop(), None, operand_stack.pop()))
+    types_stack.pop()
+    types_stack.pop()
+
+
+def p_mean_func(p):
+    '''
+    mean_func : variable EQUAL check_df MEAN LPAR variable check_df add_quad_mean RPAR SEMICOLON
+    '''
+
+def p_add_quad_mean(p):
+    '''
+    add_quad_mean : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+    op = operand_stack.pop()
+    target = operand_stack.pop()
+
+    cuadruplos.append(Cuadruplo(205, op, None, target))
+    types_stack.pop()
+    types_stack.pop()
+
+def p_mode_func(p):
+    '''
+    mode_func : variable EQUAL check_df MODE LPAR variable check_df add_quad_mode RPAR SEMICOLON
+    '''
+
+
+def p_add_quad_mode(p):
+    '''
+    add_quad_mode : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+    op = operand_stack.pop()
+    target = operand_stack.pop()
+
+    cuadruplos.append(Cuadruplo(210, op, None, target))
+    types_stack.pop()
+    types_stack.pop()
+
+def p_median_func(p):
+    '''
+    median_func : variable EQUAL check_df MEDIAN LPAR variable check_df add_quad_median RPAR SEMICOLON
+    '''
+ 
+
+def p_add_quad_median(p):
+    '''
+    add_quad_median : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+    op = operand_stack.pop()
+    target = operand_stack.pop()
+
+    cuadruplos.append(Cuadruplo(215, op, None, target))
+    types_stack.pop()
+    types_stack.pop()
+
+def p_linear_reg_func(p):
+    '''
+    linear_reg_func : LINEAR_REG LPAR variable check_df add_quad_linearR RPAR SEMICOLON
+    '''
+
+def p_add_quad_linearR(p):
+    '''
+    add_quad_linearR : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+
+    cuadruplos.append(Cuadruplo(220, None, None, operand_stack.pop()))
+    types_stack.pop()
+
+def p_box_plt(p):
+    '''
+    box_plt : BOX_PLOT LPAR variable check_df add_quad_box RPAR SEMICOLON
+    '''
+
+def p_add_quad_box(p):
+    '''
+    add_quad_box : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+
+    cuadruplos.append(Cuadruplo(225, None, None, operand_stack.pop()))
+    types_stack.pop()
+
+def p_histogram_plt(p):
+    '''
+    histogram_plt : HISTOGRAM LPAR variable check_df add_quad_hist RPAR SEMICOLON
+    '''
+
+def p_add_quad_hist(p):
+    '''
+    add_quad_hist : empty
+    '''
+    global cuadruplos, types_stack, operand_stack
+
+    cuadruplos.append(Cuadruplo(230, None, None, operand_stack.pop()))
+    types_stack.pop()
+    
+def p_check_name(p):
+    '''
+    check_name : empty
+    '''
+    csv_name = p[-1]
+    csv_name = csv_name[1:-1]
+    f = csv_name.endswith(".csv")
+    if (f != True):
+        raise Exception ("File name MUST end with \".csv\"")
+    p[0] = csv_name
 
 def p_empty(p):
     '''
@@ -1253,7 +1421,7 @@ parser = yacc.yacc()
 
 def test_Parser():
   try:
-      test_file = open("./tests/fibonacci.txt", "r")
+      test_file = open("./tests/pruebaCSV.txt", "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")

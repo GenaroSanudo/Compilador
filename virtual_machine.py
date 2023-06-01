@@ -2,6 +2,14 @@
 import pickle
 from Components.function_directory import Directory
 
+# Estadistica
+from sklearn.linear_model import LinearRegression
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 class Memory:
 
     def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size, params = None) -> None:
@@ -1041,7 +1049,7 @@ class VirtualMachine:
                 raise Exception("Value entered is not integer")
         elif (type == 2):
             try:
-                value = float(input("Enter an float: "))
+                value = float(input("Enter a float: "))
             except:
                 raise Exception("Value entered is not valid")
         else:
@@ -1051,6 +1059,121 @@ class VirtualMachine:
             self.execution_queue[-1].setValue(type, value, dir, temp)
         else:
             self.global_memory.setValue(type, value, dir, temp)
+
+    def read_csv(self, l_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+        
+        file_path = self.constants[l_dir]['value']
+
+        try:
+            df = pd.read_csv(file_path)
+        except:
+            raise Exception("No file was found in that path")
+
+        if (local):
+            self.execution_queue[-1].setValue(type, df, dir, temp)
+        else:
+            self.global_memory.setValue(type, df, dir, temp)
+
+    def mean(self, l_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+        
+        try:
+            if (local):
+                value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+            else:
+                value = self.global_memory.getValue(l_type, l_dir, l_temp)
+        except:
+            raise Exception ("Error in mean function")
+        
+        df = value.mean()
+
+        if (l_local):
+            self.execution_queue[-1].setValue(type, df, dir, temp)
+        else:
+            self.global_memory.getValue(type, df, dir, temp)
+
+    def mode(self, l_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+        
+        try:
+            if (local):
+                value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+            else:
+                value = self.global_memory.getValue(l_type, l_dir, l_temp)
+        except:
+            raise Exception ("Error in mode function")
+        
+        df = value.mode()
+
+        if (l_local):
+            self.execution_queue[-1].setValue(type, df, dir, temp)
+        else:
+            self.global_memory.getValue(type, df, dir, temp)
+
+    def median(self, l_operand, target):
+        l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
+        temp, local, type, dir, constant = self.checkDir(target)
+        
+        try:
+            if (local):
+                value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
+            else:
+                value = self.global_memory.getValue(l_type, l_dir, l_temp)
+        except:
+            raise Exception ("Error in median function")
+        
+        df = value.median()
+
+        if (l_local):
+            self.execution_queue[-1].setValue(type, df, dir, temp)
+        else:
+            self.global_memory.getValue(type, df, dir, temp)
+
+    def linearR(self, target):
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        try:
+            if (local):
+                df = self.execution_queue[-1].getValue(type, dir, temp)
+            else:
+                df = self.global_memory.getValue(type, dir, temp)
+        except:
+            raise Exception ("Error in linear regression ")
+        
+        x = df.iloc[:, 0].values.reshape(-1, 1)
+        y = df.iloc[:, 1].values.reshape(-1, 1)
+
+        linear_regressor = LinearRegression()
+        linear_regressor.fit(x, y)
+
+        predictions = linear_regressor.predict(x) 
+
+        plt.scatter(x, y)
+        plt.plot(x, predictions, color='red')
+        plt.show() 
+
+    def boxplot(self, target):
+        temp, local, type, dir, constant = self.checkDir(target)
+
+        try:
+            if (local):
+                df = self.execution_queue[-1].getValue(type, dir, temp)
+            else:
+                df = self.global_memory.getValue(type, dir, temp)
+        except:
+            raise Exception ("Error in linear regression ")
+        
+        print(df)
+        try:      
+            df[0].boxplot()
+        except:
+            raise Exception("Error aqui")
+
+        
 
 
 
@@ -1184,6 +1307,20 @@ class VirtualMachine:
                 ip_list.append(ip + 1)
                 ip = quad
                 continue
+            elif (op == 200):
+                self.read_csv(l_operand, target)
+            elif(op == 205):
+                self.mean(l_operand, target)
+            elif (op == 210):
+                self.mode(l_operand, target)
+            elif(op == 215):
+                self.median(l_operand, target)
+            elif(op == 220):
+                self.linearR(target)
+            elif(op == 225):
+                self.boxplot(target)
+            elif(op == 230):
+                pass
                 
             # print(ip)
             ip += 1

@@ -28,7 +28,7 @@ func int fibo_iterative(int n){
 
 main(){
 var int i, num;
-num = 10;
+num = 20;
 
 write("Fibonaci number: ", fibo_recur(10););
 

@@ -30,6 +30,8 @@ reserved = {
     'median' : 'MEDIAN',
     'linear_reg' : 'LINEAR_REG',
     'csv_read' : 'CSV_READ',
+    'box_plot' : 'BOX_PLOT',
+    'histogram' : 'HISTOGRAM',
 }
 
 
@@ -61,6 +63,7 @@ tokens = [
     'CTE_I',
     'CTE_F',
     'CTE_S',
+    'COMMENT',
 ] + list(reserved.values())
 
 t_PLUS = r'\+'
@@ -91,7 +94,6 @@ t_OR = r'\|\|'
 t_ignore = ' \t \n'
 
 def t_ID(t):
-    #primero puede ser _ ?
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')
     return t
@@ -111,13 +113,17 @@ def t_CTE_S(t):
     r'\".*\"'
     return t
 
+def t_COMMENT(t):
+    r'\#.*'
+    pass
+
 def t_error(t):
     print ("Illegal Character")
     t.lexer.skip(1)
 
 lexer = lex.lex()
 
-# test_file = open("./tests/test.txt", "r")
+# test_file = open("./tests/pruebaCSV.txt", "r")
 # test = test_file.read()
 # test_file.close()
 
@@ -127,5 +133,5 @@ lexer = lex.lex()
 #     tok = lexer.token()
 #     if not tok:
 #         break
-#     # print(tok)
+#     print(tok)
     
