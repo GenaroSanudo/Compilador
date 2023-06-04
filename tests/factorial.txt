@@ -1,11 +1,11 @@
-program pato : 
+program factorial : 
 
 
 func int fact_recur(int n){
     if (n <= 1){
         return (n);
     }else{
-        return(n * fact_recur(n-1););
+        return(n * fact_recur(n-1));
     };
 };
 
@@ -24,7 +24,7 @@ main(){
 var int i, num;
 num = 10;
 
-write("Factorial iterativo: ", fact_iterative(num););
-write("Factorial recursivo: ", fact_recur(num););
+write("Factorial iterative: ", fact_iterative(num));
+write("Factorial recursive: ", fact_recur(num));
 
 };

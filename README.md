@@ -4,6 +4,11 @@
 <h1>Sañudito</h1>
 Genaro Sañudo
 
+<h2>Avance 3<h2>
+Abril 30 2023
+
+Durante esta semana se empezaron a generar las ideas para la propuesta. De igual manera se comenzo con lo principal de la propuesta.
+
 <h2>Avance 4</h2>
 Mayo 7 2023
 
@@ -23,3 +28,8 @@ Durante esta semana se acabaron de agregar los puntos neuralgicos para los estat
 Mayo 28 2023
 
 Durante esta semana se acabaron de agregar los puntos neuralgicos que faltaban de las funciones. Ademas se creo la maquina virtual, en la cual se agregaron todas las funciones de aritmentica basica al igual que las de comparacion booleana. De igual forma se agregaron la funcionalidad de los ciclos y las funciones. Mientras se hizo esto se tuvieron que hacer algunos cambios a la gramatica y los diagramas que se habian pensado originalmente. Finalmente se empezo con los puntos neuralgicos y la logica de la maquina virtual para los arreglos y matrices, sin embargo no se ha logrado que funcionen de manera correcta.
+
+<h2>Avance 8</h2>
+Junio 2 2023
+
+Durante esta semana primero se arreglaron los problemas que habia con el uso de arreglos y matrcies. Una vez que quedo esto se agregaron las funciones especiales, que se habian especificado. Finalmente se empezo a generar la documentación necesaria para la entrega final del proyecto.

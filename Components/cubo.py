@@ -7,19 +7,19 @@
 #     4 string
 #     5 dataframe
 
-#     5 +
-#     10 -
-#     15 *
-#     20 /
-#     25 <
-#     30 <=
-#     35 ==
-#     40 >
-#     45 >=
-#     50 !=
-#     55 =
-#     60 &&
-#     65 ||
+#     10 +
+#     15 -
+#     20 *
+#     25 /
+#     30 <
+#     35 <=
+#     40 ==
+#     45 >
+#     50 >=
+#     55 !=
+#     60 =
+#     65 &&
+#     70 ||
 #     75 (
 #     80 )
 {
@@ -70,7 +70,8 @@ def traduccion(symbol):
     elif symbol == '||' : return 70
     else: return "Not valid type"
     
-
+# Cubo semantico
+# Un diccionario que describe todas las interacciones validas entre los diferentes tipos de variables. En caso de no haber interaccion valida no se agrega al cubo
 semantic_cube = {
     1 : {
         1 : {
@@ -140,9 +141,12 @@ semantic_cube = {
     },
     4 : {
         4 : {
-            40 : 3,
-            55 : 3,
             60 : 4
+        }
+    },
+    5 : {
+        5 : {
+            60 : 5
         }
     }
 }

@@ -1,0 +1,25 @@
+program estadistica : 
+
+
+main(){
+    var dataframe df, df2;
+    #var dataframe df2;
+    var dataframe df3;
+
+    df = csv_read("./csv/winequality-red.csv");
+
+    df3 = csv_read("./csv/bottle.csv");
+    
+    df2 = mean(df);
+    write(df);
+    write(df2);
+    df2 = mode(df);
+    write(df2);
+    df2 = median(df);
+    write(df2);
+    
+    linear_reg(df3);
+    box_plot(df);
+    histogram(df);
+    
+};

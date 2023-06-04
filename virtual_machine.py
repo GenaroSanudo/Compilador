@@ -1,4 +1,5 @@
 
+# Se importan las librerias necesarias
 import pickle
 from Components.function_directory import Directory
 import seaborn as sns
@@ -10,11 +11,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# Se crea el objeto de tipo memoria
 class Memory:
 
     def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size, params = None) -> None:
         
+        # Se generan listas para cada tipo de variable utilizada en compilacion
+
         self.local_int = [None] * int_size
         self.local_float = [None] * float_size
         self.local_string = [None] * string_size
@@ -31,7 +34,7 @@ class Memory:
         self.param_float = 0
 
         self.temp_pointer = [None] * 2000
-
+    # Funcion setValue recibe la direccion y tipo de variable y se encarga de poner el valor en el espacio indicado de la lista indicada
     def setValue(self, type, value, dir, temp = False):
 
         if (type == 6):
@@ -57,7 +60,7 @@ class Memory:
                 self.local_string[dir] = value
             elif (type == 5):
                 self.local_dataF[dir] = value
-
+    # Esta funcion recibe el tipo y la direccion y regresa el valor que se encuentra en esa casilla de la lista
     def getValue(self, type, dir, temp):
 
         if (type == 6):
@@ -84,7 +87,7 @@ class Memory:
             elif (type == 5):
                 return  self.local_dataF[dir]
         return None
-
+    # Agrega un parametro a la lista de variables correspondiente
     def addParam(self, k, value):
 
         type = self.params[k]
@@ -96,37 +99,37 @@ class Memory:
             self.setValue(2, value, self.param_float)
             self.param_float += 1
 
-
+# Se genera la clase de tipo VirtualMachine
 class VirtualMachine:
-
+    # Se inicializa la clase con los valores que se cargaron a traves de pickle
     def __init__(self, func_dir, global_vars, constants, cuadruplos) -> None:
         
-        self.global_vars = global_vars # CAMBIAR ESTO
+        self.global_vars = global_vars 
         self.func_dir = func_dir
         self.cuadruplos = cuadruplos
         self.constants = constants
         self.execution_queue = []
-        # self.execution_queue = [Memory()]
-
+    # Funcion para inicializar la maquina virtual
     def initialize_vm(self):
 
-        # Adds global virtual memory
+        # Se agrega la global virtual memory
         g_memory = self.func_dir.func_directory['program']['num_vars']
         g_temp_memory = self.func_dir.func_directory['program']['num_temp_vars']
         self.global_memory = Memory(g_memory[0], g_memory[1], g_memory[2], g_memory[3], g_temp_memory[0], g_temp_memory[1], g_temp_memory[2], g_temp_memory[3], g_temp_memory[4])
 
+        # Se agrega la mememoria de main al execution queue
         main_memory = self.func_dir.func_directory['main']['num_vars']
         main_temp_memory = self.func_dir.func_directory['main']['num_temp_vars']
         self.execution_queue.append(Memory(main_memory[0], main_memory[1], main_memory[2], main_memory[3], main_temp_memory[0], main_temp_memory[1], main_temp_memory[2], main_temp_memory[3], main_temp_memory[4]))
 
-        # Change constant table
+        # Se cambia la tabla de constantes
         self.changeConstantTalbe()
 
-
+    # Funcion para cmabiar la llave de la tabla de constantes
     def changeConstantTalbe(self):
 
         newTable = dict()
-
+        # Se genera una nueva table donde la llave es la direccion virtual y el valor se cambia a un elemento del diccionario
         for key, element in self.constants.items():
             type = element['type']
 
@@ -140,13 +143,14 @@ class VirtualMachine:
             newTable[element['virtual_dir']] = {'type' : type, 'value': key}
 
         self.constants = newTable
-
+    # Se crea y regresa un nuevo objeto de tipo Memory para una funcion
     def createFunction(self, target):
         func_memory = self.func_dir.func_directory[target]['num_vars']
         func_temp_memory = self.func_dir.func_directory[target]['num_temp_vars']
         params = self.func_dir.func_directory[target]['params']
         return(Memory(func_memory[0], func_memory[1], func_memory[2], func_memory[3], func_temp_memory[0], func_temp_memory[1], func_temp_memory[2], func_temp_memory[3], func_temp_memory[4], params))
 
+    # Esta funcion recibe una direccion y a traves de los estatuos if calcula el equivalente de esa direccion de compilacion en ejecucion y regresa el nuevo valor junto al tipo, si es logal, si es temporal o si es constante
     def checkDir(self, dir):
         
         if ((dir >= 0) and (dir < 8000 )):
@@ -231,12 +235,15 @@ class VirtualMachine:
         elif ((dir >= 56000) and (dir < 58000)):
             dir = dir - 56000
             return False, True, 6, dir, False
-
+        
+# Funcion para el cuadruplo de suma
     def suma(self, l_operand, r_operand, target):
+        # Se consigue la direccion para los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+        # Se revisa si son de tipo pointer y de sera asi se vuelve a generar la operacion de direccion
         if(l_type == 6):
                 temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                 l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -245,7 +252,8 @@ class VirtualMachine:
                 temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
         
-        
+        # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde este
+
         if (l_constant and r_constant):
             # ambas constantes
             l_value = self.constants[l_dir]['value']
@@ -286,19 +294,22 @@ class VirtualMachine:
                 r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+        # Se calcula el resultado
         result = l_value + r_value
-
+        
+        # Se guarda el resultado en el target
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
             self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo de resta
     def resta(self, l_operand, r_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+        # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
         if(l_type == 6):
                 temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                 l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -306,6 +317,8 @@ class VirtualMachine:
         if(r_type == 6):
                 temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
+
+        # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
 
         if (l_constant and r_constant):
             # ambas constantes
@@ -347,19 +360,23 @@ class VirtualMachine:
                 r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+        # Se calcula el resultado de la resta
         result = l_value - r_value
 
+        # Se guarda el resultado en el target
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
             self.global_memory.setValue(type, result, dir, temp)
-
+    
+    # Funcion para el cuadruplo de multiplicacion
     def mult(self, l_operand, r_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
         temp, local, type, dir, constant = self.checkDir(target)
 
+         # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
         if(l_type == 6):
                 temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                 l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -368,6 +385,7 @@ class VirtualMachine:
                 temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
+        # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
         if (l_constant and r_constant):
             # ambas constantes
             l_value = self.constants[l_dir]['value']
@@ -409,21 +427,23 @@ class VirtualMachine:
                 r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
             else:
                 r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+        # Se calcula el resultado de la multiplicacion
         result = l_value * r_value
-        # print("MULT", l_value, r_value, r_dir, r_local, r_temp)
-
+        
+        # Se guarda el resultado en el target
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
             self.global_memory.setValue(type, result, dir, temp)
 
+    # Funcion para el cuadruplo de division
     def divide(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
             
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -432,6 +452,7 @@ class VirtualMachine:
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -473,22 +494,27 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la division
             result = l_value / r_value
 
+            # Si el resultado es de tipo int se redondea
             if (type == 1):
                 result = round(result)
 
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
 
+    # Funcion para el cuadruplo de less_than
     def less_than(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
-       
+
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -497,6 +523,7 @@ class VirtualMachine:
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
 
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores   
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -538,20 +565,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value < r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo less_equals
     def less_equal(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -559,7 +587,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -601,20 +629,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value <= r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo is_equal
     def is_equal(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -622,7 +651,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -664,20 +693,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula al resultado de la comparacion
             result = l_value == r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo greater_than
     def greater_than(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -685,7 +715,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -727,20 +757,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value > r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-    
+    # Funcion para el cuadruplo greater_equal
     def greater_equal(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -748,7 +779,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -790,20 +821,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calucla el resultado de la comparacion
             result = l_value >= r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo not_equal
     def not_equal(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -811,7 +843,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -853,20 +885,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value != r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo and
     def and_func(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+             # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -874,7 +907,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -916,20 +949,21 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value and r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo or
     def or_func(self, l_operand, r_operand, target):
+            # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
             r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(r_operand)
             temp, local, type, dir, constant = self.checkDir(target)
 
-
+            # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
             if(l_type == 6):
                     temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
                     l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
@@ -937,7 +971,7 @@ class VirtualMachine:
             if(r_type == 6):
                     temp_val = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                     r_temp, r_local, r_type, r_dir, r_constant = self.checkDir(temp_val)
-
+            # Se hacen las diferentes validaciones para conseguir el valor dependiendo de la tabla donde esten lo valores
             if (l_constant and r_constant):
                 # ambas constantes
                 l_value = self.constants[l_dir]['value']
@@ -979,19 +1013,19 @@ class VirtualMachine:
                     r_value = self.execution_queue[-1].getValue(r_type, r_dir, r_temp)
                 else:
                     r_value = self.global_memory.getValue(r_type, r_dir, r_temp)
-
+            # Se calcula el resultado de la comparacion
             result = l_value or r_value
-
+            # Se guarda el resultado en el target
             if (local):
                 self.execution_queue[-1].setValue(type, result, dir, temp)
             else:
                 self.global_memory.setValue(type, result, dir, temp)
-
+    # Funcion para el cuadruplo asigna
     def asigna(self, l_operand, target):
-
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
-
+         # Se revisa si alguna variable es de tipo pointer, de ser asi se vuelve a buscar la direccion
         if (type == 6):
             temp_val = self.execution_queue[-1].getValue(type, dir, temp)
             temp, local, type, dir, constant = self.checkDir(temp_val)
@@ -999,7 +1033,7 @@ class VirtualMachine:
         if (l_type == 6):
             temp_val = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
             l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(temp_val)
-            
+        # Se hacen las diferentes validaciones para conseguir el valor del resultado dependiendo de la tabla donde esten lo valores
         if (l_constant):
             # Aqui entra si son constantes
             result = self.constants[l_dir]['value']
@@ -1010,77 +1044,84 @@ class VirtualMachine:
             else:
                 #AQUI SI ES GLOBAL
                 result = self.global_memory.getValue(l_type, l_dir, l_temp)
-                
+        # Si el resultado todavia no se especifica se manda el error   
         if (result == None):
-            raise Exception ("Valor asignado no ha sido especificado")
-        
+            raise Exception ("Assigned value not specified")
+        # Se guarda el resultado en el target
         if (local):
             self.execution_queue[-1].setValue(type, result, dir, temp)
         else:
             self.global_memory.setValue(type, result, dir, temp)
                  
-
+    # Funcion para el cuadruplo write
     def write(self, target):
+        # se consigue la direccion del target
         temp, local, type, dir, constant = self.checkDir(target)
+        # Si es de tipo pointer se repite el proceso
         if(type == 6):
             temp_val = self.execution_queue[-1].getValue(type, dir, temp)
-            # print(self.execution_queue[-1].getValue(6,1,False))
             temp, local, type, dir, constant = self.checkDir(temp_val)
-
+        # Se hacen validaciones sobre el tipo de la variable
         if (constant):
             value = self.constants[dir]['value']
         elif (local):
             value = self.execution_queue[-1].getValue(type, dir, temp)
         else:
             value = self.global_memory.getValue(type, dir, temp)
-        
+        # Se imprime el valor
         print(value)
-    
+    # Funcion para el cuadruplo read
     def read(self, target):
+        # Se consigue el valor del target
         temp, local, type, dir, constant = self.checkDir(target)
-
+        # Si es de tipo pointer se repite el proceso
         if(type == 6):
             temp_val = self.execution_queue[-1].getValue(type, dir, temp)
             temp, local, type, dir, constant = self.checkDir(temp_val)
-
         if (type == 1):
             try:
+                # Si la variable es de tipo int se intenta hacer un cast a int del input
                 value = int(input("Enter an integer: "))
             except:
                 raise Exception("Value entered is not integer")
         elif (type == 2):
             try:
+                # Si la variable es de tipo float se intenta hacer un cast a float del input
                 value = float(input("Enter a float: "))
             except:
                 raise Exception("Value entered is not valid")
         else:
             raise Exception ("Invalid type variable in read statement")
-        
+        # Se guarda el resultado en la variable
         if (local):
             self.execution_queue[-1].setValue(type, value, dir, temp)
         else:
             self.global_memory.setValue(type, value, dir, temp)
-
+    # Funcion para el cuadruplo read_csv
     def read_csv(self, l_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
-        
+        # se consigue el valor del path del csv
         file_path = self.constants[l_dir]['value']
 
         try:
+            # Se intena leer el csv utilizando la libreria de pandas
             df = pd.read_csv(file_path)
         except:
             raise Exception("No file was found in that path")
-
+        # se guarda el datafraame en el target address
         if (local):
             self.execution_queue[-1].setValue(type, df, dir, temp)
         else:
             self.global_memory.setValue(type, df, dir, temp)
-
+    # Funcion para el cuadruplo mean
     def mean(self, l_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
         
+        # Se consigue el dataframe
         try:
             if (local):
                 value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
@@ -1088,18 +1129,19 @@ class VirtualMachine:
                 value = self.global_memory.getValue(l_type, l_dir, l_temp)
         except:
             raise Exception ("Error in mean function")
-        
+        # Se aplica la funcion de mean en el df
         df = value.mean()
-
+        # Se guarda la variable en el target
         if (l_local):
             self.execution_queue[-1].setValue(type, df, dir, temp)
         else:
             self.global_memory.getValue(type, df, dir, temp)
-
+    # FUncion para el cuadruplo mode
     def mode(self, l_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
-        
+        # Se consigue el dataframe
         try:
             if (local):
                 value = self.execution_queue[-1].getValue(l_type, l_dir, l_temp)
@@ -1107,15 +1149,16 @@ class VirtualMachine:
                 value = self.global_memory.getValue(l_type, l_dir, l_temp)
         except:
             raise Exception ("Error in mode function")
-        
+        # Se aplica la funcion de moda en el df
         df = value.mode()
-
+        # se guarda el dataframe en el target address
         if (l_local):
             self.execution_queue[-1].setValue(type, df, dir, temp)
         else:
             self.global_memory.getValue(type, df, dir, temp)
-
+    # Funcion para el cuadruplo median
     def median(self, l_operand, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         l_temp, l_local, l_type, l_dir, l_constant = self.checkDir(l_operand)
         temp, local, type, dir, constant = self.checkDir(target)
         
@@ -1126,17 +1169,18 @@ class VirtualMachine:
                 value = self.global_memory.getValue(l_type, l_dir, l_temp)
         except:
             raise Exception ("Error in median function")
-        
+        # Se aplica la funcion de median en el df
         df = value.median()
-
+        # Se guarda el df
         if (l_local):
             self.execution_queue[-1].setValue(type, df, dir, temp)
         else:
             self.global_memory.getValue(type, df, dir, temp)
-
+    # Funcion para cuaduplo linearR
     def linearR(self, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         temp, local, type, dir, constant = self.checkDir(target)
-
+        # se consigue el df
         try:
             if (local):
                 df = self.execution_queue[-1].getValue(type, dir, temp)
@@ -1145,44 +1189,49 @@ class VirtualMachine:
         except:
             raise Exception ("Error in linear regression ")
         
+        # Se separa la ultima columna del df para hacer el entrenamiento
+
         x = df.iloc[:, 0].values.reshape(-1, 1)
         y = df.iloc[:, 1].values.reshape(-1, 1)
 
+        # se crea la regresion lineal
         linear_regressor = LinearRegression()
+        # Se entrena el modelo con x y y
         linear_regressor.fit(x, y)
-
+        # se hacen las predicciones del modelo para x
         predictions = linear_regressor.predict(x) 
-
+        # Se hace el scatter plot de x y y
         plt.scatter(x, y)
-        plt.plot(x, predictions, color='red')
+        # Se genera la linea de las predicciones del modelo
+        plt.plot(x, predictions, color='purple')
+        # se muestra la grafica
         plt.show() 
         
-
+    # Funcion para el cuadruplo de boxplot
     def boxplot(self, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         temp, local, type, dir, constant = self.checkDir(target)
-
+        # Se consigue el df
         try:
             if (local):
                 df = self.execution_queue[-1].getValue(type, dir, temp)
             else:
                 df = self.global_memory.getValue(type, dir, temp)
         except:
-            raise Exception ("Error in linear regression ")
-        
+            raise Exception ("Error in boxplot")
+        # Se generan las graficas para cada una de las columans numericas del df
         try:      
             for column in df:
-                plt.figure()
                 df.boxplot([column])   
                 plt.show()   
         except:
-            raise Exception("Error aqui")
+            raise Exception("Error in boxplot")
         
-        
-        
-    
+    # FUncion para el cuadruplo histogram
     def histogram(self, target):
+        # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
         temp, local, type, dir, constant = self.checkDir(target)
-
+        # Se consigue el df
         try:
             if (local):
                 df = self.execution_queue[-1].getValue(type, dir, temp)
@@ -1190,9 +1239,8 @@ class VirtualMachine:
                 df = self.global_memory.getValue(type, dir, temp)
         except:
             raise Exception ("Error in histogram ")
-        # df.hist()
-        # plt.show()
 
+        # Se genera el histograma para cada una de las columnas numericas del df
         try:    
             for column in df:
                 df.hist([column])   
@@ -1200,33 +1248,29 @@ class VirtualMachine:
         except:
             raise Exception("Error in histogram")
 
-        
-
-
-
+    # Funcion que se encarga de leer los cuadruplos que se generaron en el parser
     def readQuad(self):
+        # Inicializa el ip en 0
         ip = 0
+        # Crea una lista de ips
         ip_list = []
 
-
+        # Comienza a leer los cuadruplos en un ciclo while
         while (ip < len(self.cuadruplos)):
+            # Asigna los valores de los cuadruplos
             op = self.cuadruplos[ip].operator
             l_operand = self.cuadruplos[ip].l_operand
             r_operand = self.cuadruplos[ip].r_operand
             target = self.cuadruplos[ip].target
 
-            # print(ip)
+            # Comienza en un "switch case" donde revisa la operacion del cuadruplo y manda llamar a la funcion correspondiente
 
             if (op == 10):
-                # print(ip)
                 self.suma(l_operand, r_operand, target)
-                # print("VALOR SUMA ", self.execution_queue[-1].getValue(6, 6, False))
-                # print("VALOR GLOBAL", self.global_memory.getValue(1, 1002, False))
             elif (op == 15):
                 self.resta(l_operand, r_operand, target)
             elif (op == 20):
                 self.mult(l_operand, r_operand, target)
-                # print("MULTIPLICACION", self.execution_queue[-1].getValue(1,0, True))
             elif (op == 25):
                 self.divide(l_operand, r_operand, target)
             elif (op == 30):
@@ -1252,6 +1296,8 @@ class VirtualMachine:
             elif (op == 105):
                 self.write(target)
             elif (op == 110):
+                # Cuadruplo return
+                # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
                 temp, local, type, dir, constant = self.checkDir(target)
                 if (constant):
                     value = self.constants[dir]['value']
@@ -1259,41 +1305,47 @@ class VirtualMachine:
                     value = self.execution_queue[-1].getValue(type, dir, temp)
                 else:
                     value = self.global_memory.getValue(type,dir,temp)
-
+                # Se guarda el valor
                 temp, local, type, dir, constant = self.checkDir(l_operand)
                 self.global_memory.setValue(type, value, dir, temp)
-
+                # Se elimina la funcion actual del execution queue
                 self.execution_queue.pop()
+                # Se consigue el ultimo valor del ip
                 ip = ip_list.pop()
                 continue
             elif (op == 115):
+                # VER
+                # Se verifica que el valor indexado este dentro de los limites
+
                 temp, local, type, dir, constant = self.checkDir(l_operand)
                 if (type == 6):
                     temp_val = self.execution_queue[-1].getValue(type, dir, temp)
                     temp, local, type, dir, constant = self.checkDir(temp_val)
-                # print(l_operand)
+
                 if (constant):
                     value = self.constants[dir]['value']
                 elif (local):
                     value = self.execution_queue[-1].getValue(type, dir, temp)
                 else:
                     value = self.global_memory.getValue(type, dir, temp)
-                # print("COMP", value, r_operand, target, type)
+
                 if ((value < r_operand) or (value >= target) or (type != 1 and constant == False)):
-                    raise Exception ("Out of bounds", value, r_operand, target, type, constant)
+                    raise Exception ("Out of bounds")
                     
             elif (op == 130):
                 #GOTO
                 ip = target
                 continue
             elif (op == 135):
+                #GOTOF
+                # Se consiguen las direcciones en ejecucion de los componentes del cuadruplo
                 temp, local, type, dir, constant = self.checkDir(l_operand)
-
+                # Se consigue el valor del resultado
                 if (local):
                     value = self.execution_queue[-1].getValue(type, dir, temp)
                 else:
                     value = self.global_memory.getValue(type, dir, temp)
-                
+                # Si el resultado es falso se cambia el ip
                 if (value == False):
                     ip = target
                     continue
@@ -1309,6 +1361,8 @@ class VirtualMachine:
                     ip = target
                     continue
             elif (op == 145):
+                # Endfunc
+                # Se saca el ultimo valor del execution queue
                 if (len(self.execution_queue) > 1):
                     ip = ip_list.pop()
                 elif(len(self.execution_queue) == 0):
@@ -1319,6 +1373,7 @@ class VirtualMachine:
             elif (op == 150):
                 nextFunctionMem = self.createFunction(target)
             elif (op == 155):
+                # Se agregan los parametros a la memoria de ejecucion
                 temp, local, type, dir, constant = self.checkDir(l_operand)
                 if (constant):
                     value = self.constants[dir]['value']
@@ -1329,8 +1384,11 @@ class VirtualMachine:
                 
                 nextFunctionMem.addParam(r_operand, value)
             elif (op == 160):
+                # GOSUB
+                # Se mueve el ip al quad donde comienza la funcion
                 self.execution_queue.append(nextFunctionMem)
                 quad = self.func_dir.func_directory[l_operand]['quad_counter']
+                # Se agrega el ip actual  + 1 a la lista de ips
                 ip_list.append(ip + 1)
                 ip = quad
                 continue
@@ -1348,12 +1406,13 @@ class VirtualMachine:
                 self.boxplot(target)
             elif(op == 230):
                 self.histogram(target)
-                
-            # print(ip)
+            # Se le suma 1 al ip
             ip += 1
-            
+
+# Se ejecuta el archivo del parser           
 with open("parser_1.py") as f:
     exec(f.read())
+# Se abren los diferentes archivos pickle y se guardan el contenido
 
 with open('./Pickle/func_dir.pickle', 'rb') as handle:
     func_dir = pickle.load(handle)
@@ -1367,9 +1426,9 @@ with open('./Pickle/global_vars.pickle', 'rb') as handle:
 with open('./Pickle/cuadruplos.pickle', 'rb') as handle:
     cuad = pickle.load(handle)
 
-
+# Se genera la maquina virtual con los documento scargador por pickle
 vm = VirtualMachine(func_dir, global_vars, constant_table, cuad)
-
+# Se inicializa la maquina virtual
 vm.initialize_vm()
-
+# Se comienzan a leer los cuadruplos
 vm.readQuad()

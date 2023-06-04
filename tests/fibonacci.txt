@@ -1,11 +1,11 @@
-program pato : 
+program fibonacci : 
 
 
 func int fibo_recur(int n){
     if (n <= 1){
         return (n);
     }else{
-        return(fibo_recur(n-1); + fibo_recur(n-2););
+        return(fibo_recur(n-1) + fibo_recur(n-2));
     };
 };
 
@@ -15,12 +15,10 @@ func int fibo_iterative(int n){
     a = 0;
     b = 1;
 
-    write(a,b);
     while(n-2 >= 0){
         c=a+b;
         a = b;
         b = c;
-        write(c);
         n=n-1;
     };
     return (c);
@@ -30,12 +28,8 @@ main(){
 var int i, num;
 num = 20;
 
-write("Fibonaci number: ", fibo_recur(10););
+write("Fibonacci recursive: ", fibo_recur(num));
 
-write("Fibonacci secuence: ");
-for (i = 0 to num+1){
-    write(fibo_recur(i););
-}; 
 write ("Fibonacci iterative: ");
-write(fibo_iterative(num););
+write(fibo_iterative(num));
 };

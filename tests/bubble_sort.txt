@@ -1,4 +1,4 @@
-program pato : 
+program sort : 
 
 var int arr[10];
 var int c;
@@ -17,18 +17,11 @@ func void bubble_sort(int length){
         };
     };
 
-
     };
 
 main(){
     var int i, f;
-    var int c[10][15];
-
-    var dataframe df;
-
-    df = 1;
-
-
+    
     for (i = 0 to 10){
         arr[i] = 10-i;
     };
@@ -51,6 +44,4 @@ main(){
         write(arr[i]);
     };
     
-
-
 };

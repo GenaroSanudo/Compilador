@@ -10,10 +10,9 @@ reserved = {
     # Types
     'int' : 'INT',
     'float' : 'FLOAT',
-    'char' : 'CHAR',
-    'string' : 'STRING', #?
+    'string' : 'STRING', 
     'void' : 'VOID',
-    'dataframe' : 'DATAFRAME', #?
+    'dataframe' : 'DATAFRAME', 
     # Conditional
     'if' : 'IF',
     'else' : 'ELSE',
@@ -44,7 +43,7 @@ tokens = [
     'DIVIDE',
     'COMMA',
     'SEMICOLON',
-    'COLON', #FALTA ESTE
+    'COLON',
     'LESS_EQUAL',
     'LESS',
     'GREATER_EQUAL',
@@ -93,34 +92,40 @@ t_OR = r'\|\|'
 
 t_ignore = ' \t \n'
 
+# Funcion regex para IDs
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value, 'ID')
     return t
 
-
+# Funcion regex para constantes float
 def t_CTE_F(t):
     r'[0-9]+\.[0-9]+'
     t.value = float(t.value)
     return t
 
+# Funcion regex para constantes int
 def t_CTE_I(t):
     r'[0-9]+'
     t.value = int(t.value)
     return t
 
+# Funcion regex para constantes string
 def t_CTE_S(t):
     r'\".*\"'
     return t
 
+# Funcion regex para comentarios
 def t_COMMENT(t):
     r'\#.*'
     pass
 
+# Funcion para errores
 def t_error(t):
     print ("Illegal Character")
     t.lexer.skip(1)
 
+# Se crea el objeto de tipo lex
 lexer = lex.lex()
 
 # test_file = open("./tests/pruebaCSV.txt", "r")
