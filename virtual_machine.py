@@ -2,6 +2,7 @@
 # Se importan las librerias necesarias
 import pickle
 from Components.function_directory import Directory
+import parser_1 as parser
 import seaborn as sns
 
 # Estadistica
@@ -11,10 +12,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+
 # Se crea el objeto de tipo memoria
 class Memory:
 
-    def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size, params = None) -> None:
+    def __init__(self, int_size, float_size, string_size, dataF_size, t_int_size, t_float_size, t_bool_size, t_string_size, t_dataF_size, t_pointer_size, params = None) -> None:
         
         # Se generan listas para cada tipo de variable utilizada en compilacion
 
@@ -33,7 +36,7 @@ class Memory:
         self.param_int = 0
         self.param_float = 0
 
-        self.temp_pointer = [None] * 2000
+        self.temp_pointer = [None] * t_pointer_size
     # Funcion setValue recibe la direccion y tipo de variable y se encarga de poner el valor en el espacio indicado de la lista indicada
     def setValue(self, type, value, dir, temp = False):
 
@@ -115,12 +118,12 @@ class VirtualMachine:
         # Se agrega la global virtual memory
         g_memory = self.func_dir.func_directory['program']['num_vars']
         g_temp_memory = self.func_dir.func_directory['program']['num_temp_vars']
-        self.global_memory = Memory(g_memory[0], g_memory[1], g_memory[2], g_memory[3], g_temp_memory[0], g_temp_memory[1], g_temp_memory[2], g_temp_memory[3], g_temp_memory[4])
+        self.global_memory = Memory(g_memory[0], g_memory[1], g_memory[2], g_memory[3], g_temp_memory[0], g_temp_memory[1], g_temp_memory[2], g_temp_memory[3], g_temp_memory[4], g_temp_memory[5])
 
         # Se agrega la mememoria de main al execution queue
         main_memory = self.func_dir.func_directory['main']['num_vars']
         main_temp_memory = self.func_dir.func_directory['main']['num_temp_vars']
-        self.execution_queue.append(Memory(main_memory[0], main_memory[1], main_memory[2], main_memory[3], main_temp_memory[0], main_temp_memory[1], main_temp_memory[2], main_temp_memory[3], main_temp_memory[4]))
+        self.execution_queue.append(Memory(main_memory[0], main_memory[1], main_memory[2], main_memory[3], main_temp_memory[0], main_temp_memory[1], main_temp_memory[2], main_temp_memory[3], main_temp_memory[4], main_temp_memory[5]))
 
         # Se cambia la tabla de constantes
         self.changeConstantTalbe()
@@ -148,7 +151,7 @@ class VirtualMachine:
         func_memory = self.func_dir.func_directory[target]['num_vars']
         func_temp_memory = self.func_dir.func_directory[target]['num_temp_vars']
         params = self.func_dir.func_directory[target]['params']
-        return(Memory(func_memory[0], func_memory[1], func_memory[2], func_memory[3], func_temp_memory[0], func_temp_memory[1], func_temp_memory[2], func_temp_memory[3], func_temp_memory[4], params))
+        return(Memory(func_memory[0], func_memory[1], func_memory[2], func_memory[3], func_temp_memory[0], func_temp_memory[1], func_temp_memory[2], func_temp_memory[3], func_temp_memory[4], func_temp_memory[5], params))
 
     # Esta funcion recibe una direccion y a traves de los estatuos if calcula el equivalente de esa direccion de compilacion en ejecucion y regresa el nuevo valor junto al tipo, si es logal, si es temporal o si es constante
     def checkDir(self, dir):
@@ -1409,9 +1412,11 @@ class VirtualMachine:
             # Se le suma 1 al ip
             ip += 1
 
-# Se ejecuta el archivo del parser           
-with open("parser_1.py") as f:
-    exec(f.read())
+
+FILE_NAME = "./tests/bubble_sort.txt"
+
+# Se corre la funcion test_parser con el nombre de archivo que se quiere
+parser.test_Parser(FILE_NAME)
 # Se abren los diferentes archivos pickle y se guardan el contenido
 
 with open('./Pickle/func_dir.pickle', 'rb') as handle:

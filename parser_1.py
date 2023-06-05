@@ -5,6 +5,7 @@ import Components.function_directory as function_directory
 from Components.cuadruplo import Cuadruplo, fillCuad
 import Components.virtual_adresses as va
 import pickle
+import sys
 
 # Function directory
 current_function = None
@@ -167,12 +168,14 @@ def p_main_final(p):
     bool_cont = va.local_temp_bool - temp_bool_cont
     string_cont = va.local_temp_string - temp_string_cont
     dataframe_cont = va.local_temp_dataframe - temp_dataf_cont
+    temporal_pointer_cont = va.temp_pointer - temp_pointer_cont
+
     # Si se pasan de 1999 variables de cualquier tipo marcar un error de tipo stack overflow
-    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000)):
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000) or (temporal_pointer_cont > 2000)):
         raise Exception ("Stack overflow")
 
     # Cuenta las variables temporales y las agrega al directorio de funciones
-    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
+    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont, va.temp_pointer - temp_pointer_cont]
     func_dir.setTempVars(current_function, temp_addresses)
     
     # Reiniciar los contadores 
@@ -180,6 +183,7 @@ def p_main_final(p):
     va.local_temp_float = temp_float_cont
     va.local_temp_bool = temp_bool_cont
     va.local_temp_dataframe = temp_dataf_cont
+    va.temp_pointer = temp_pointer_cont
 
     # Elimina las variabels del directorio de funciones
     func_dir.func_directory[current_function]['vars'].clear()
@@ -857,8 +861,6 @@ def p_for_point_4(p):
     global current_function
 
     Ty = va.getTemporalAddress(current_function, 1)
-    # constant_table["Ty"] = {'type' : 1, 'virtual_dir' : va.constant_int}
-    # va.local_temp_int = va.local_temp_int + 1
     # Agrega 1 a la tabla de constantes
     if (constant_table.get(str(1)) != None):
         address = constant_table[str(1)]['virtual_dir']
@@ -1323,7 +1325,7 @@ def p_func_agrega_v(p):
 
     # Borra la lista local de variables
     var_list.clear()
-# Punto neuralgico final que revisa que las funciones sean validas
+# Punto neuralgico final que revisa que las funciones sean validas y cuenta el numero de variables
 def p_final_func_point(p):
     '''
     final_func_point : empty
@@ -1342,17 +1344,19 @@ def p_final_func_point(p):
     bool_cont = va.local_temp_bool - temp_bool_cont
     string_cont = va.local_temp_string - temp_string_cont
     dataframe_cont = va.local_temp_dataframe - temp_dataf_cont
+    temporal_pointer_cont = va.temp_pointer - temp_pointer_cont
 
-    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000)):
+    if ((int_cont > 2000) or (float_cont > 2000) or (string_cont > 2000) or (dataframe_cont > 2000) or (bool_cont > 2000) or (temporal_pointer_cont > 2000)):
         raise Exception ("Stack overflow")
 
-    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont]
+    temp_addresses = [va.local_temp_int - temp_int_cont, va.local_temp_float-temp_float_cont, va.local_temp_bool - temp_bool_cont, va.local_temp_string - temp_string_cont, va.local_temp_dataframe - temp_dataf_cont, va.temp_pointer - temp_pointer_cont]
     func_dir.setTempVars(current_function, temp_addresses)
 
     va.local_temp_int = temp_int_cont
     va.local_temp_float = temp_float_cont
     va.local_temp_bool = temp_bool_cont
     va.local_temp_dataframe = temp_dataf_cont
+    va.temp_pointer = temp_pointer_cont
 
     func_dir.func_directory[current_function]['vars'].clear()
 
@@ -1514,16 +1518,34 @@ def p_empty(p):
 parser = yacc.yacc()
 
 # Funcion que genera el parser y crea los cuadruplos
-def test_Parser():
+def test_Parser(name):
   try:
-      test_file = open("./tests/find.txt", "r")
+      test_file = open(name, "r")
       test = test_file.read()
       test_file.close()
       print ("Test parser")
       parser.parse(test)
+      save_files()
       
   except EOFError:
       raise Exception ("Cannot test parser")
+
+def save_files():
+            # Se genera el archivo picle con el directorio de funciones
+        with open('./Pickle/func_dir.pickle', 'wb') as handle:
+            pickle.dump(func_dir, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Se genera el archivo pickle con la tabla de constantes
+        with open('./Pickle/constants.pickle', 'wb') as handle:
+            pickle.dump(constant_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Se genera el archivo pickle con la tabla de variables globales
+        with open('./Pickle/global_vars.pickle', 'wb') as handle:
+            pickle.dump(global_vars, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Se genera el archivo pickel con los cuadruplos
+        with open('./Pickle/cuadruplos.pickle', 'wb') as handle:
+            pickle.dump(cuadruplos, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
         # Se llama la funcion para generar los cuadruplos
@@ -1543,18 +1565,3 @@ if __name__ == '__main__':
         # print(global_vars)
         # print(constant_table)
 
-        # Se genera el archivo picle con el directorio de funciones
-        with open('./Pickle/func_dir.pickle', 'wb') as handle:
-            pickle.dump(func_dir, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-        # Se genera el archivo pickle con la tabla de constantes
-        with open('./Pickle/constants.pickle', 'wb') as handle:
-            pickle.dump(constant_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-        # Se genera el archivo pickle con la tabla de variables globales
-        with open('./Pickle/global_vars.pickle', 'wb') as handle:
-            pickle.dump(global_vars, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-        # Se genera el archivo pickel con los cuadruplos
-        with open('./Pickle/cuadruplos.pickle', 'wb') as handle:
-            pickle.dump(cuadruplos, handle, protocol=pickle.HIGHEST_PROTOCOL)
