@@ -3,7 +3,6 @@
 import pickle
 from Components.function_directory import Directory
 import parser_1 as parser
-import seaborn as sns
 
 # Estadistica
 from sklearn.linear_model import LinearRegression
@@ -12,7 +11,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-import sys
 
 # Se crea el objeto de tipo memoria
 class Memory:

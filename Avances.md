@@ -4,7 +4,7 @@
 <h1>Sañudito</h1>
 Genaro Sañudo
 
-<h2>Avance 3<h2>
+<h2>Avance 3</h2>
 Abril 30 2023
 
 Durante esta semana se empezaron a generar las ideas para la propuesta. De igual manera se comenzo con lo principal de la propuesta.

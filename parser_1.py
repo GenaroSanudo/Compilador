@@ -5,7 +5,7 @@ import Components.function_directory as function_directory
 from Components.cuadruplo import Cuadruplo, fillCuad
 import Components.virtual_adresses as va
 import pickle
-import sys
+
 
 # Function directory
 current_function = None

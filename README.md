@@ -1,35 +1,295 @@
 # Compilador
 
 
-<h1>Sañudito</h1>
-Genaro Sañudo
+<h1>Lenguaje Sañudito</h1>
+<h2>Genaro Sañudo</h2>
 
-<h2>Avance 3<h2>
-Abril 30 2023
+<h3>Como correr el compilador?</h3>
+Para correr el compilador primero deben de estar instaladas las siguientes librearias: pandas, matplotlib, pickle, sklearn y ply.
 
-Durante esta semana se empezaron a generar las ideas para la propuesta. De igual manera se comenzo con lo principal de la propuesta.
+Una vez que se tengan instaladas esas librerias se tiene que arbrir el archivo "virtual_machine.py". Dentro de ese archivo se tiene que buscar la variable llamada: "FILE_NAME". Esa variable es el string donde se especifiac el archivo de texto que se quiere correr. Una vez especificado el archivo simplemente se tine que correr el comando `python vritual_machine.py`.
 
-<h2>Avance 4</h2>
-Mayo 7 2023
+<h3>Generación de archivo de texto con el lenguaje Sañudito</h3>
 
-Durante esta semana se desarrollo y entrego la propuesta original del proyecto. Despues de unos cambios indicados por la maestra se acepto la propuesta final. Ademas se genero la gramatica formal y en base a esta se programo el parser y el lexer utilizando PLY. Una vez que se acabo con estas clases se agrego el cubo semantico y el directorio de funciones para poder empezar a agregar los puntos neuralgicos necesarios para guardar la infromación importante.
+Para empezar se tiene que generar un archivo de texto nuevo.
 
-<h2>Avance 5</h2>
-Mayo 14 2023
+<h5>Program</h3>
+En este archivo se tiene que empezar con:
 
-Durante esta semana se acabo el directorio de funciones y la tabla de variables. Se agrego la clase de cuadruplos y se hicieron correcciones a la gramatica. Además se agregaron puntos neuralgicos para las siguientes funciones: READ, WRITE, ASIGNAR al igual que los puntos necesarios para la aritmetica básica del programa.
+`program NOMBRE_DE_PROGRAMA :`
 
-<h2>Avance 6</h2>
-Mayo 21 2023
+Donde "NOMBRE_DE_PROGRAMA" puede ser cualquier ID valida
 
-Durante esta semana se acabaron de agregar los puntos neuralgicos para los estatutos lineales. Ademas se agregaron los puntos neuralgicos necesarios para los loops (for, if, y while). Se hicieron muchos cambios necesarios en la gramatica y los diagramas para lograr que todo funcionara como debe. Los cambios mas grandes fueron el cambio de return a estatuto, lo cual permitio que se simplificara la gramatica de funciones. Otro cambio fue que se agrego la funcion regex que permite el uso de "letreros" esto se hizo para lograr que el write pudiera imprimir strings. Se agregaron las siguientes variables al directorio de funciones: num_vars : Es una lista que permite llevar conteo de la cantidad y tipo de variables en una funcion, num_temp_vars : Lo mismo pero de variables temporales, num_params : un contador de los parametros y finalmente quad_counter : que permite saber en que cuadruplo empiezan los estatutos de esa funcion.
+<h5>Declaracion de ID</h5>
+Una ID puede ser cualquier combinacion de numeros y letras. La unica condicion es que tiene que comenzar con una letra o con un "_".
 
-<h2>Avance 7</h2>
-Mayo 28 2023
+<h5>Tipos</h5>
+El lenguaje Sañudito maneja tipos_simples y tipos_compuestos. Los tipos simples son INT y FLOAT. Mientras que los compuestos son los DATAFRAMES.
 
-Durante esta semana se acabaron de agregar los puntos neuralgicos que faltaban de las funciones. Ademas se creo la maquina virtual, en la cual se agregaron todas las funciones de aritmentica basica al igual que las de comparacion booleana. De igual forma se agregaron la funcionalidad de los ciclos y las funciones. Mientras se hizo esto se tuvieron que hacer algunos cambios a la gramatica y los diagramas que se habian pensado originalmente. Finalmente se empezo con los puntos neuralgicos y la logica de la maquina virtual para los arreglos y matrices, sin embargo no se ha logrado que funcionen de manera correcta.
+<h5>Funciones</h5>
+En el lenguaje Sañudito se pueden declarar cualquier tipo de funciones mientras que sigan el siguiente formato:
 
-<h2>Avance 8</h2>
-Junio 2 2023
+```
+func tipo_simple ID (tipo_simple ID){
+            Var
+            Estatutos
+            };
+```
 
-Durante esta semana primero se arreglaron los problemas que habia con el uso de arreglos y matrcies. Una vez que quedo esto se agregaron las funciones especiales, que se habian especificado. Finalmente se empezo a generar la documentación necesaria para la entrega final del proyecto.
+o el siguiente:
+
+```
+func VOID ID (tipo_simple ID){ 
+        Var
+        Estatutos
+        };
+```
+
+La unica condicion es que las funciones de tipo_simple tienen que tener por lo menos 1 estatuto RETURN mientras que las VOID no pueden tener ni uno. Además, ambos tipos de funciones deben de tener por lo menos 1 estatuto adentro. Por otro lado no hay limite de parametros, pueden tener de 0 hasta los que gusten. Las funciones tambien pueden declarar el número de variables que quieran.
+
+<h5>Variables</h5>
+En este lenguaje se manejan variables INT, FLOAT, DATAFRAME o arreglos y matrices de tipo INT o FLOAT. Para declarar una variable se siguen los siguientes pasos para variables normales:
+
+```
+var tipo ID
+```
+
+O para arreglos/matrices se puede seguir el siguiente formato:
+
+```
+var tipo_simple ID[CTE_I]
+var tipo_simple ID[CTE_I][CTE_I]
+```
+Donde CTE_I es un INT > 0
+
+<h5>Estatutos</h5>
+En este lenguaje se manejan los siguientes estatutos:
+
+<ul>
+  <li>asigna</li>
+  <li>llamada</li>
+  <li>llamada_void</li>
+  <li>read</li>
+  <li>write</li>
+  <li>if</li>
+  <li>for_l</li>
+  <li>while_l</li>
+  <li>return</li>
+  <li>funciones_especiales</li>
+</ul>
+
+A continuación se podrán ver snippets de cada uno de los estatutos, para una explicación más detallada se puede ver la documentación del proyecto
+
+<h5>Asigna</h5>
+
+```
+variable = Exp;
+```
+<h5>Llamada</h5>
+
+```
+id (Exp)
+id (Exp, Exp, Exp, etc)
+```
+<h5>Llamada_void</h5>
+
+```
+id (Exp);
+id (Exp, Exp, Exp, etc);
+```
+<h5>Read</h5>
+
+```
+read (variable);
+```
+<h5>Write</h5>
+
+```
+write(Exp);
+write(CTE_S);
+write(Exp, CTE_S, Exp);
+```
+<h5>if</h5>
+
+```
+if (Exp) {Estatutos};
+if (Exp) {Estatutos}else{Estatutos};
+```
+Donde Exp tiene que ser una comparacion
+<h5>For_l</h5>
+
+```
+for (id = Exp to Exp ) {Estatutos};
+```
+
+Donde Exp tienen que ser numeros enteros
+<h5>While_l</h5>
+
+```
+while(Exp){Estatutos};
+```
+
+Donde Exp tiene que ser una comparación
+<h5>Return</h5>
+
+```
+return(Exp);
+```
+<h5>Funciones Especiales</h5>
+
+Las funciones especiales pueden ser las siguientes:
+
+<ul>
+  <li>read_csv</li>
+  <li>mean_func</li>
+  <li>mode_func</li>
+  <li>median_func</li>
+  <li>linear_reg</li>
+  <li>box_plt</li>
+  <li>histogram_plt</li>
+</ul>
+
+<h5>read_csv</h5>
+
+```
+variable = csv_read(variable);
+```
+Donde las variables tienen que ser de tipo dataframe
+<h5>mean_func</h5>
+
+```
+variable = mean(variable);
+```
+Donde las variables tienen que ser de tipo dataframe
+
+<h5>mode_func</h5>
+
+```
+variable = mode(variable);
+```
+Donde las variables tienen que ser de tipo dataframe
+<h5>median_func</h5>
+
+```
+variable = median(variable);
+```
+Donde las variables tienen que ser de tipo dataframe
+
+<h5>linear_reg</h5>
+
+```
+linear_reg(variable);
+```
+Donde la variable tienen que ser de tipo dataframe
+<h5>box_plt</h5>
+
+```
+box_plt(variable);
+```
+Donde la variable tienen que ser de tipo dataframe
+<h5>histogram_plt</h5>
+
+```
+histogram(variable);
+```
+Donde la variable tienen que ser de tipo dataframe
+
+<h5>Operaciones</h5>
+En este lenguaje se permiten las siguientes operaciones:
+
+<ul>
+  <li>+</li>
+  <li>-</li>
+  <li>*</li>
+  <li>/</li>
+  <li>></li>
+  <li>>=</li>
+  <li><</li>
+    <li><=</li>
+  <li>==</li>
+  <li>!=</li>
+  <li>&&</li>
+  <li>||</li>
+</ul>
+
+<h5>Main</h5>
+Finalmente para correr un archivo es necesario tener una función main(). El formato a seguir es el siguiente:
+```
+main(){
+    Vars
+    Estatutos
+};
+```
+
+<h5>Ejemplos</h5>
+A continuación se presentaran algunos ejemplos combinando lo que se decribio hasta ahora.
+
+Este primer ejemplo es algo simple pero sirve para crear un programa, declarar una variable, darle un valor e imprimirla.
+
+```
+program simple :
+
+main(){
+    var int a;
+    a = 10;
+    
+    write(a);
+};
+```
+
+Sin embargo en este lenguaje se pueden crear cosas mucho más complejas. Este segundo ejemplo es un poco más avanzado, el codigo es para sacar el numero de fibonacci de forma recursiva e iterativa:
+
+```
+program fibonacci : 
+
+
+func int fibo_recur(int n){
+    if (n <= 1){
+        return (n);
+    }else{
+        return(fibo_recur(n-1) + fibo_recur(n-2));
+    };
+};
+
+func int fibo_iterative(int n){
+    var int a, b, c;
+
+    a = 0;
+    b = 1;
+
+    while(n-2 >= 0){
+        c=a+b;
+        a = b;
+        b = c;
+        n=n-1;
+    };
+    return (c);
+};
+
+main(){
+var int i, num;
+num = 20;
+
+write("Fibonacci recursive: ", fibo_recur(num));
+
+write ("Fibonacci iterative: ");
+write(fibo_iterative(num));
+};
+```
+
+Finalmente, en el tercer ejemplo creamos y leemos un dataframe imprimir su contenido, y despues hacer una regresion lineal.
+
+```
+program dataF :
+
+main(){
+    var dataframe df;
+
+    df = csv_read("./csv/winequality-red.csv");
+
+    write(df);
+
+    linear_reg(df);
+    
+};
+```
