@@ -1413,7 +1413,7 @@ class VirtualMachine:
             ip += 1
 
 
-FILE_NAME = "./tests/bubble_sort.txt"
+FILE_NAME = "./tests/pruebaEstadistica.txt"
 
 # Se corre la funcion test_parser con el nombre de archivo que se quiere
 parser.test_Parser(FILE_NAME)
