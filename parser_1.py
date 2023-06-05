@@ -1523,7 +1523,7 @@ def test_Parser(name):
       test_file = open(name, "r")
       test = test_file.read()
       test_file.close()
-      print ("Test parser")
+    #   print ("Test parser")
       parser.parse(test)
       save_files()
       
