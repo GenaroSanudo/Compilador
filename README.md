@@ -16,7 +16,9 @@ Para empezar se tiene que generar un archivo de texto nuevo.
 <h5>Program</h3>
 En este archivo se tiene que empezar con:
 
-`program NOMBRE_DE_PROGRAMA :`
+```
+program NOMBRE_DE_PROGRAMA :
+```
 
 Donde "NOMBRE_DE_PROGRAMA" puede ser cualquier ID valida
 
@@ -221,7 +223,7 @@ main(){
 };
 ```
 
-<h5>Ejemplos</h5>
+<h3>Ejemplos</h3>
 A continuación se presentaran algunos ejemplos combinando lo que se decribio hasta ahora.
 
 Este primer ejemplo es algo simple pero sirve para crear un programa, declarar una variable, darle un valor e imprimirla.
